@@ -12,14 +12,12 @@
 
 ### Integrantes del equipo
 
-* Completar ([xxxx](https://github.com/xxxx))
-* Completar ([xxxx](https://github.com/xxxx))
-* Completar ([xxxx](https://github.com/xxxx))
-* Completar ([xxxx](https://github.com/xxxx))
-* Completar ([xxxx](https://github.com/xxxx))
+* Alexis Aranda Ocampo ([alexis-aranda](https://github.com/alexis-aranda))
+* Cristian Flores ([xxxx](https://github.com/xxxx))
+* Daniel Mariano Varela ([danvare](https://github.com/danvare))
+* Federico Dubuch ([EakerLord](https://github.com/EakerLord))
+* Lara Jazmin Cavicchioli ([LaraCavic](https://github.com/LaraCavic))
 * Valeria Silvestri ([leyluchy](https://github.com/leyluchy))
-* Completar ([xxxx](https://github.com/xxxx))
-* Completar ([xxxx](https://github.com/xxxx))
 
 ## Sobre la tecnología
 * Java 1.8
