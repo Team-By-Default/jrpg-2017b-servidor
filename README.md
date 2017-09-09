@@ -13,7 +13,7 @@
 ### Integrantes del equipo
 
 * Alexis Aranda Ocampo ([alexis-aranda](https://github.com/alexis-aranda))
-* Cristian Flores ([xxxx](https://github.com/xxxx))
+* Cristian Flores ([crisflores](https://github.com/crisflores))
 * Daniel Mariano Varela ([danvare](https://github.com/danvare))
 * Federico Dubuch ([EakerLord](https://github.com/EakerLord))
 * Lara Jazmin Cavicchioli ([LaraCavic](https://github.com/LaraCavic))
