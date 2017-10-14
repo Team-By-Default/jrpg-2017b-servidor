@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import mensajeria.PaqueteNPC;
 import mensajeria.PaqueteMensaje;
 import mensajeria.PaqueteMovimiento;
 import mensajeria.PaquetePersonaje;
@@ -32,6 +33,8 @@ public class Servidor extends Thread {
 	
 	private static Map<Integer, PaqueteMovimiento> ubicacionPersonajes = new HashMap<>();
 	private static Map<Integer, PaquetePersonaje> personajesConectados = new HashMap<>();
+	private static Map<Integer, PaqueteMovimiento> ubicacionNPCs = new HashMap<>();
+	private static Map<Integer, PaqueteNPC> NPCs = new HashMap<>();
 
 	private static Thread server;
 	
@@ -160,7 +163,21 @@ public class Servidor extends Thread {
 			
 			atencionConexiones.start();
 			atencionMovimientos.start();
-			//Thread de los mounstuos//
+			//Donde pongo a los 10 npc
+			for (int i = 0; i < 10; i++) { // crea 10 NPCs en posiciones randoms
+				PaqueteNPC paqueteNPC = new PaqueteNPC(i);
+				float x = (float) Math.random() * 500;
+				float y = (float)Math.random() * 500;
+				
+				PaqueteMovimiento paqueteMovimiento = new PaqueteMovimiento(i, (float)(10 + (x * 0.707) - (y * 0.707 )), (float)(10 + (x * 0.707) + (y * 0.707 )) );
+				
+				
+				NPCs.put( i, paqueteNPC);
+				ubicacionNPCs.put( i, paqueteMovimiento);
+				
+				setNPCs( NPCs );
+				setUbicacionNPCs( ubicacionNPCs );
+			}
 			
 			
 			while (true) {
@@ -221,6 +238,10 @@ public class Servidor extends Thread {
 	public static ArrayList<EscuchaCliente> getClientesConectados() {
 		return clientesConectados;
 	}
+	
+	public static void setUbicacionPersonajes(Map<Integer, PaqueteMovimiento> ubicacionPersonajes) {
+		Servidor.ubicacionPersonajes = ubicacionPersonajes;
+	}
 
 	public static Map<Integer, PaqueteMovimiento> getUbicacionPersonajes() {
 		return ubicacionPersonajes;
@@ -232,5 +253,21 @@ public class Servidor extends Thread {
 
 	public static Conector getConector() {
 		return conexionDB;
+	}
+	
+	public static Map<Integer, PaqueteMovimiento> getUbicacionNPCs() {
+		return ubicacionNPCs;
+	}
+	
+	public static void setUbicacionNPCs(Map<Integer, PaqueteMovimiento> ubicacionNPCs) {
+		Servidor.ubicacionNPCs = ubicacionNPCs;
+	}
+
+	public static Map<Integer, PaqueteNPC> getNPCs() {
+		return NPCs;
+	}
+
+	public static void setNPCs(Map<Integer, PaqueteNPC> NPCs) {
+		Servidor.NPCs = NPCs;
 	}
 }
