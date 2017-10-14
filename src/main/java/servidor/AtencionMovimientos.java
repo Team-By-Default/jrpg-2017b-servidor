@@ -35,6 +35,12 @@ public class AtencionMovimientos extends Thread {
 							synchronized (conectado) {
 								conectado.getSalida().writeObject(gson.toJson(pdp));									
 							}
+							//Para los npcs
+							PaqueteDeMovimientos pdpN = (PaqueteDeMovimientos) new PaqueteDeMovimientos(Servidor.getUbicacionNPCs()).clone();
+							pdpN.setComando(Comando.MOVIMIENTONPCS);
+							synchronized (conectado) {
+								conectado.getSalida().writeObject(gson.toJson(pdpN));									
+							}
 						}
 					}
 				}
