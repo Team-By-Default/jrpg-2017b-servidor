@@ -37,13 +37,13 @@ public class FinalizarBatallaNPC extends ComandosServer{
 		for(EscuchaCliente conectado : Servidor.getClientesConectados()) 
 		{
 			if( conectado.getIdPersonaje() == escuchaCliente.getPaqueteFinalizarBatalla().getId() ){
-			try {
-				conectado.getSalida().writeObject(gson.toJson(escuchaCliente.getPaqueteFinalizarBatalla()));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				Servidor.log.append("Falló al intentar enviar finalizarBatalla a:" + conectado.getPaquetePersonaje().getId() + "\n");
+				try {
+					conectado.getSalida().writeObject(gson.toJson(escuchaCliente.getPaqueteFinalizarBatalla()));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Servidor.log.append("Falló al intentar enviar finalizarBatalla a:" + conectado.getPaquetePersonaje().getId() + "\n");
+				}
 			}
-		}
 		}
 
 		

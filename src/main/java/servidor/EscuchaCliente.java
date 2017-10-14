@@ -17,6 +17,7 @@ import mensajeria.PaqueteNPCs;
 import mensajeria.PaqueteDePersonajes;
 import mensajeria.PaqueteFinalizarBatalla;
 import mensajeria.PaqueteMovimiento;
+import mensajeria.PaqueteNPC;
 import mensajeria.PaquetePersonaje;
 import mensajeria.PaqueteUsuario;
 
@@ -29,6 +30,7 @@ public class EscuchaCliente extends Thread {
 	private final Gson gson = new Gson();
 	
 	private PaquetePersonaje paquetePersonaje;
+	private PaqueteNPC paqueteNPC;
 	private PaqueteMovimiento paqueteMovimiento;
 	private PaqueteBatalla paqueteBatalla;
 	private PaqueteAtacar paqueteAtacar;
@@ -37,6 +39,7 @@ public class EscuchaCliente extends Thread {
 	private PaqueteDeMovimientos paqueteDeMovimiento;
 	private PaqueteDePersonajes paqueteDePersonajes;
 	private PaqueteNPCs paqueteDeNPCs;
+	
 	public EscuchaCliente(String ip, Socket socket, ObjectInputStream entrada, ObjectOutputStream salida) throws IOException {
 		this.socket = socket;
 		this.entrada = entrada;
@@ -173,6 +176,20 @@ public class EscuchaCliente extends Thread {
 
 	public void setPaqueteNPCs(PaqueteNPCs paqueteDeNPCs) {
 		this.paqueteDeNPCs = paqueteDeNPCs;
+	}
+
+	/**
+	 * @return the paqueteNPC
+	 */
+	public PaqueteNPC getPaqueteNPC() {
+		return paqueteNPC;
+	}
+
+	/**
+	 * @param paqueteNPC the paqueteNPC to set
+	 */
+	public void setPaqueteNPC(PaqueteNPC paqueteNPC) {
+		this.paqueteNPC = paqueteNPC;
 	}
 }
 
