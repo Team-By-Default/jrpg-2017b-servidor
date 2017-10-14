@@ -27,6 +27,7 @@ import mensajeria.PaquetePersonaje;
 
 public class Servidor extends Thread {
 
+	//Conectamos los mounstruos aca
 	private static ArrayList<EscuchaCliente> clientesConectados = new ArrayList<>();
 	
 	private static Map<Integer, PaqueteMovimiento> ubicacionPersonajes = new HashMap<>();
@@ -159,7 +160,9 @@ public class Servidor extends Thread {
 			
 			atencionConexiones.start();
 			atencionMovimientos.start();
-
+			//Thread de los mounstuos//
+			
+			
 			while (true) {
 				Socket cliente = serverSocket.accept();
 				ipRemota = cliente.getInetAddress().getHostAddress();
