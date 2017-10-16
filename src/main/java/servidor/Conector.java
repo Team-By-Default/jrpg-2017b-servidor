@@ -350,6 +350,12 @@ public class Conector {
 	}		
 		
 	public void actualizarInventario(int idPersonaje) {
+		//Refactoreando
+		PaquetePersonaje paquetePersonaje = Servidor.getPersonajesConectados().get(idPersonaje);
+		actualizarInventario(paquetePersonaje);
+		
+		/*Versión anterior
+		
 		int i = 0;
 		PaquetePersonaje paquetePersonaje = Servidor.getPersonajesConectados().get(idPersonaje);
 		PreparedStatement stActualizarMochila;
@@ -379,6 +385,7 @@ public class Conector {
 		} catch (SQLException e) {
 			Servidor.log.append("Falló al intentar actualizar inventario de"+ idPersonaje + "\n");
 		}
+		*/
 	}
 
 	public void actualizarPersonajeSubioNivel(PaquetePersonaje paquetePersonaje) {
