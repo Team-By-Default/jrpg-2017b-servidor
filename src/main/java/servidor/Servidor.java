@@ -201,6 +201,8 @@ public class Servidor extends Thread {
 	 * comandos.Talk.ejecutar()
 	 */
 	/**
+	 * Método obsoleto.
+	 * 
 	 * En el contexto donde un usuario intenta enviar un mensaje a otro, chequea que el receptor
 	 * esté conectado. Si lo está, informa en el log del servidor que el mensaje se envió y retorna
 	 * true. Si no está conectado, informa que no se pudo enviar el mensaje y retorna false.
@@ -247,6 +249,8 @@ public class Servidor extends Thread {
 	 * comandos.Talk.ejecutar()
 	 */
 	/**
+	 * Método obsoleto.
+	 * 
 	 * En el contexto donde un usuario intenta enviar un mensaje a todos, chequea que la cantidad de conectados
 	 * sea igual a la esperada. Si lo es, informa en el log del servidor que el mensaje se envió a todos y 
 	 * retorna true. Si la cantidad no es igual, informa que algunos usuarios se han desconectado y retorna false.
