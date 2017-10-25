@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,6 +16,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -40,7 +43,7 @@ public class Servidor extends Thread {
 	
 	private static ServerSocket serverSocket;
 	private static Conector conexionDB;
-	private final int PUERTO = 55050;
+	private int puerto = 55050;
 
 	private final static int ANCHO = 700;
 	private final static int ALTO = 640;
@@ -56,6 +59,18 @@ public class Servidor extends Thread {
 		cargarInterfaz();	
 	}
 
+	public Servidor() {
+		try { 
+			Scanner sc = new Scanner(new File("config.txt"));
+			this.puerto=sc.nextInt();
+			sc.close();
+			if(this.puerto>65535||this.puerto<0)
+				this.puerto=55050;
+		} catch (FileNotFoundException e1) {
+			this.puerto=55050;
+		}
+	}
+	
 	private static void cargarInterfaz() {
 		JFrame ventana = new JFrame("Servidor WOME");
 		ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -154,7 +169,7 @@ public class Servidor extends Thread {
 			conexionDB.connect();
 			
 			log.append("Iniciando el servidor..." + System.lineSeparator());
-			serverSocket = new ServerSocket(PUERTO);
+			serverSocket = new ServerSocket(puerto);
 			log.append("Servidor esperando conexiones..." + System.lineSeparator());
 			String ipRemota;
 			
