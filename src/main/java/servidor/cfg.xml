@@ -18,5 +18,6 @@
 		<property name="format_sql">true</property>
 		<!--Agregar un mapping resource por cada clase/tabla que haya que mapear con esta config-->
 		<mapping resource="personaje.xml" />
+		<mapping resource="usuario.xml" />
 	</session-factory>
 </hibernate-configuration>
