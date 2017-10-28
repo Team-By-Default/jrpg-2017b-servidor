@@ -15,9 +15,15 @@ import mensajeria.PaqueteUsuario;
 
 public class Conector {
 
+	/**
+	 * Path del archivo de la base de datos
+	 */
 	private String url = "primeraBase.bd";
 	Connection connect;
-
+	
+	/**
+	 * Establece la conexión con la base de datos
+	 */
 	public void connect() {
 		try {
 			Servidor.log.append("Estableciendo conexión con la base de datos..." + System.lineSeparator());
@@ -28,7 +34,10 @@ public class Conector {
 					+ System.lineSeparator());
 		}
 	}
-
+	
+	/**
+	 * Termina la conexión con la base de datos
+	 */
 	public void close() {
 		try {
 			connect.close();
@@ -37,16 +46,24 @@ public class Conector {
 			Logger.getLogger(Conector.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
-
+	
+	/**
+	 * Guarda un usuario nuevo en la base de datos
+	 * @param user: paquete de usuario con los datos del nuevo usuario
+	 * @return True si pudo registrarlo correctamente, false si ocurrió algún error
+	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
 		ResultSet result = null;
 		try {
+			//Busca si ya hay algún usuario con ese nombre
 			PreparedStatement st1 = connect.prepareStatement("SELECT * FROM registro WHERE usuario= ? ");
 			st1.setString(1, user.getUsername());
 			result = st1.executeQuery();
 
+			//Si no existía ese nombre, lo agrega
 			if (!result.next()) {
 
+				//Genera la instrucción SQL con todos los datos y la ejecuta
 				PreparedStatement st = connect.prepareStatement("INSERT INTO registro (usuario, password, idPersonaje) VALUES (?,?,?)");
 				st.setString(1, user.getUsername());
 				st.setString(2, user.getPassword());
@@ -66,6 +83,12 @@ public class Conector {
 
 	}
 
+	/**
+	 * Regista un personaje nuevo para un usuario
+	 * @param paquetePersonaje: paquete con los datos del personaje
+	 * @param paqueteUsuario: paquete con los datos del usuario
+	 * @return true si se pudo registrar, false si hubo problemas
+	 */
 	public boolean registrarPersonaje(PaquetePersonaje paquetePersonaje, PaqueteUsuario paqueteUsuario) {
 
 		try {
@@ -125,7 +148,12 @@ public class Conector {
 		}
 
 	}
-
+	
+	/**
+	 * Registra el inventario y la mochila para un personaje
+	 * @param idInventarioMochila: numero id del personaje, inventario y mochila
+	 * @return true si se pudo registrar, false si hubo problemas
+	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
 		try {
 			// Preparo la consulta para el registro el inventario en la base de
@@ -158,7 +186,12 @@ public class Conector {
 			return false;
 		}
 	}
-
+	
+	/**
+	 * Autentica al usuario. Este método tiene seguridad nula.
+	 * @param user: paquete con los datos del usuario
+	 * @return true si se autenticó correctamente, false si hubo problemas
+	 */
 	public boolean loguearUsuario(PaqueteUsuario user) {
 		ResultSet result = null;
 		try {
@@ -186,10 +219,15 @@ public class Conector {
 
 	}
 
+	/**
+	 * Actualiza datos del personaje
+	 * @param paquetePersonaje: paquete con los datos del personaje
+	 */
 	public void actualizarPersonaje(PaquetePersonaje paquetePersonaje) {
 		try {
 			int i = 2;
 			int j = 1;
+			//Prepara y ejecuta la instrucción SQL para actualizar las stats
 			PreparedStatement stActualizarPersonaje = connect
 					.prepareStatement("UPDATE personaje SET fuerza=?, destreza=?, inteligencia=?, saludTope=?, energiaTope=?, experiencia=?, nivel=? "
 							+ "  WHERE idPersonaje=?");
@@ -204,14 +242,17 @@ public class Conector {
 			stActualizarPersonaje.setInt(8, paquetePersonaje.getId());
 			stActualizarPersonaje.executeUpdate();
 
-			
+			//Levanta la mochila y los items de la BD
 			PreparedStatement stDameItemsID = connect.prepareStatement("SELECT * FROM mochila WHERE idMochila = ?");
 			stDameItemsID.setInt(1, paquetePersonaje.getId());
 			ResultSet resultadoItemsID = stDameItemsID.executeQuery();
 			PreparedStatement stDatosItem = connect.prepareStatement("SELECT * FROM item WHERE idItem = ?");
+			
 			ResultSet resultadoDatoItem = null;
+			//Le borra los items al personaje en memoria
 			paquetePersonaje.eliminarItems();
-		
+			
+			//Le pone los items al personaje en memoria según la BD
 			while (j <= 9) {
 				if(resultadoItemsID.getInt(i) != -1) {
 					stDatosItem.setInt(1, resultadoItemsID.getInt(i));
@@ -233,7 +274,13 @@ public class Conector {
 		
 		
 	}
-
+	
+	/**
+	 * Trae el personaje de un usuario de la base de datos
+	 * @param user: paquete con los datos del usuario
+	 * @return paquete de personaje con los datos de la BD o datos por default si hubo algún error
+	 * @throws IOException
+	 */
 	public PaquetePersonaje getPersonaje(PaqueteUsuario user) throws IOException {
 		ResultSet result = null;
 		ResultSet resultadoItemsID = null;
@@ -275,7 +322,8 @@ public class Conector {
 			personaje.setNombre(result.getString("nombre"));
 			personaje.setExperiencia(result.getInt("experiencia"));
 			personaje.setNivel(result.getInt("nivel"));
-
+			
+			//Pone los items al personaje
 			while (j <= 9) {
 				if(resultadoItemsID.getInt(i) != -1) {
 					stDatosItem.setInt(1, resultadoItemsID.getInt(i));
@@ -302,11 +350,17 @@ public class Conector {
 		return new PaquetePersonaje();
 	}
 	
+	/**
+	 * Trae un usuario de la base de datos a partir del nombre
+	 * @param usuario: nombre del usuario
+	 * @return paquete con los datos del usuario, o con datos por default si hubo algún error
+	 */
 	public PaqueteUsuario getUsuario(String usuario) {
 		ResultSet result = null;
 		PreparedStatement st;
 		
 		try {
+			//Prepara y ejecuta una instrucción SQL para traer los datos del usuario
 			st = connect.prepareStatement("SELECT * FROM registro WHERE usuario = ?");
 			st.setString(1, usuario);
 			result = st.executeQuery();
@@ -314,6 +368,7 @@ public class Conector {
 			String password = result.getString("password");
 			int idPersonaje = result.getInt("idPersonaje");
 			
+			//Genera e inicializa el paquete de usuario
 			PaqueteUsuario paqueteUsuario = new PaqueteUsuario();
 			paqueteUsuario.setUsername(usuario);
 			paqueteUsuario.setPassword(password);
@@ -328,10 +383,18 @@ public class Conector {
 		return new PaqueteUsuario();
 	}
 
+	/**
+	 * Actualiza el inventario de un personaje en la base de datos
+	 * @param paquetePersonaje: paquete con todos los datos del personaje
+	 */
 	public void actualizarInventario(PaquetePersonaje paquetePersonaje) {
 		int i = 0;
 		PreparedStatement stActualizarMochila;
 		try {
+			/*
+			 * Prepara la instrucción SQL para cargar todos los items del personaje en la BD
+			 * Carga los id de los items que tiene y pone -1 para los que no tiene
+			 */
 			stActualizarMochila = connect.prepareStatement(
 					"UPDATE mochila SET item1=? ,item2=? ,item3=? ,item4=? ,item5=? ,item6=? ,item7=? ,item8=? ,item9=? "
 							+ ",item10=? ,item11=? ,item12=? ,item13=? ,item14=? ,item15=? ,item16=? ,item17=? ,item18=? ,item19=? ,item20=? WHERE idMochila=?");
@@ -348,7 +411,11 @@ public class Conector {
 		} catch (SQLException e) {
 		}
 	}		
-		
+	
+	/**
+	 * Actualiza el inventario de un personaje a partir de su id
+	 * @param idPersonaje: numero id del personaje
+	 */
 	public void actualizarInventario(int idPersonaje) {
 		//Refactoreando
 		PaquetePersonaje paquetePersonaje = Servidor.getPersonajesConectados().get(idPersonaje);
@@ -388,6 +455,10 @@ public class Conector {
 		*/
 	}
 
+	/**
+	 * Actualiza stats de un personaje porque subió de nivel
+	 * @param paquetePersonaje: paquete con los datos del personaje
+	 */
 	public void actualizarPersonajeSubioNivel(PaquetePersonaje paquetePersonaje) {
 		try {
 			PreparedStatement stActualizarPersonaje = connect
