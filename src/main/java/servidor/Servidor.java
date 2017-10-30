@@ -30,6 +30,7 @@ import mensajeria.PaqueteMensaje;
 import mensajeria.PaqueteMovimiento;
 import mensajeria.PaquetePersonaje;
 import mundo.Mundo;
+import mundo.Tile;
 
 public class Servidor extends Thread {
 
@@ -225,16 +226,17 @@ public class Servidor extends Thread {
 	 */
 	public static float[] generarPosIso(Random random) {
 		//Con random genero coordenadas del mapa de (0,0) a (71,71) y las paso a isométricas
-		float x = random.nextInt(72);
-		float y = random.nextInt(72);
+		int x = random.nextInt(72);
+		int y = random.nextInt(72);
 		
 		float[] coordsIso = Mundo.dosDaIso(x, y);
-		//Si esas coordenadas son visibles por algún personaje, las regenero hasta dar con unas que no sean visibles
-		while(esVisible(coordsIso)) {
+		/*
+		 * Si esas coordenadas son visibles por algún personaje o dieron sobre un lugar
+		 * prohibido, las regenero hasta dar con unas que no sean visibles ni prohibidas
+		 */
+		while(esLugarProhibido(x,y) || esVisible(coordsIso = Mundo.dosDaIso(x, y))) {
 			x = random.nextInt() % 72;
 			y = random.nextInt() % 72;
-			System.out.println("Probando " + x + "," + y);
-			coordsIso = Mundo.dosDaIso(x, y);
 		}
 		
 		return coordsIso;
@@ -257,6 +259,46 @@ public class Servidor extends Thread {
 		}
 		//Si llega hasta acá es que no está en el campo visible de nadie, retorna false
 		return false;
+	}
+	
+	/**
+	 * Responde si un par de coordenadas (no isométricas) del mapa Aubenor 
+	 * es un lugar prohibido o no.
+	 * @param x: coordenada X
+	 * @param y: coordenada Y
+	 * @return true si es un lugar prohibido, false si no
+	 */
+	private static boolean esLugarProhibido(int x, int y) {
+		Scanner arch;
+		try {
+			arch = new Scanner(new File("../jrpg-2017b-cliente/recursos/Aubenor.txt"));
+			
+			//Si cae fuera del mapa, es un lugar prohibido
+			if(x >= arch.nextInt() || y >= arch.nextInt()) {
+				arch.close();
+				return true;
+			}
+			
+			int i;
+			//Salto lineas hasta posicionarme en Y.
+			//Salto la primer linea (2º linea del archivo) porque son las coordenadas de spawn
+			for(i=0; i < y+1; i++)
+				arch.nextLine();
+			//Salto hasta antes de X
+			for(i=0; i<x; i++)
+				arch.nextInt();
+			
+			//Leo la posicion X,Y
+			int tile = arch.nextInt();
+			arch.close();
+			return tile != Tile.aubenorBase;
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			//Si algo falla, asumo que es un lugar prohibido
+			return true;
+		}
+		
 	}
 
 	/*Quiero dejar este método obsoleto, no parece hacer falta si se modifica del proyecto Servidor
