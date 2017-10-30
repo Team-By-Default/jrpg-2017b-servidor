@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.JButton;
@@ -28,6 +29,7 @@ import mensajeria.PaqueteNPC;
 import mensajeria.PaqueteMensaje;
 import mensajeria.PaqueteMovimiento;
 import mensajeria.PaquetePersonaje;
+import mundo.Mundo;
 
 public class Servidor extends Thread {
 
@@ -38,6 +40,7 @@ public class Servidor extends Thread {
 	private static Map<Integer, PaquetePersonaje> personajesConectados = new HashMap<>();
 	private static Map<Integer, PaqueteMovimiento> ubicacionNPCs = new HashMap<>();
 	private static Map<Integer, PaqueteNPC> NPCs = new HashMap<>();
+	private Random random; //Para ubicar a los NPCs
 
 	private static Thread server;
 	
@@ -69,6 +72,7 @@ public class Servidor extends Thread {
 		} catch (FileNotFoundException e1) {
 			this.puerto=55050;
 		}
+		this.random = new Random();
 	}
 	
 	private static void cargarInterfaz() {
@@ -178,15 +182,15 @@ public class Servidor extends Thread {
 			
 			atencionConexiones.start();
 			atencionMovimientos.start();
+			
 			//Donde pongo a los 10 npc
 			for (int i = 0; i < 10; i++) { // crea 10 NPCs en posiciones randoms
 				PaqueteNPC paqueteNPC = new PaqueteNPC(i);
-				float x = (float) Math.random() * 500;
-				float y = (float)Math.random() * 500;
+				//Genero coordenadas al azar en algún lugar no visible por los personajes
+				float[] coords = generarPosIso(this.random);
+				PaqueteMovimiento paqueteMovimiento = new PaqueteMovimiento(i, coords[0], coords[1]);
 				
-				PaqueteMovimiento paqueteMovimiento = new PaqueteMovimiento(i, (float)(10 + (x * 0.707) - (y * 0.707 )), (float)(10 + (x * 0.707) + (y * 0.707 )) );
-				
-				
+				//Seteo el nuevo NPC
 				NPCs.put( i, paqueteNPC);
 				ubicacionNPCs.put( i, paqueteMovimiento);
 				
@@ -212,6 +216,49 @@ public class Servidor extends Thread {
 		}
 	}
 	
+	/**
+	 * Genera coordenadas isométricas al azar, en lugares no visibles por ningún
+	 * personaje conectado. 
+	 * WARNING: en el peor de los casos, o si entre todos los personajes cubren
+	 * ven todo el mapa, esto caería en un while infinito
+	 * @return vector de coordenadas isométricas en dos dimensiones
+	 */
+	public static float[] generarPosIso(Random random) {
+		//Con random genero coordenadas del mapa de (0,0) a (71,71) y las paso a isométricas
+		float x = random.nextInt(72);
+		float y = random.nextInt(72);
+		
+		float[] coordsIso = Mundo.dosDaIso(x, y);
+		//Si esas coordenadas son visibles por algún personaje, las regenero hasta dar con unas que no sean visibles
+		while(esVisible(coordsIso)) {
+			x = random.nextInt() % 72;
+			y = random.nextInt() % 72;
+			System.out.println("Probando " + x + "," + y);
+			coordsIso = Mundo.dosDaIso(x, y);
+		}
+		
+		return coordsIso;
+	}
+	
+	/**
+	 * Para un par de coordenadas isométricas define si es visible o no por algún personaje
+	 * @param iso: vector de coordenadas isométricas
+	 * @return true si alguien lo ve, false si no es visible por nadie
+	 */
+	private static boolean esVisible(float iso[]) {
+		//Para cada personaje conectado
+		for(PaqueteMovimiento posPersonaje : ubicacionPersonajes.values()) {
+			//Si entra en su campo visible, retorno true
+			if(iso[0] <= posPersonaje.getPosX() +  ANCHO/2 &&
+					iso[0] >= posPersonaje.getPosX() -  ANCHO/2 &&
+					iso[1] <= posPersonaje.getPosY() +  ALTO/2 &&
+					iso[1] >= posPersonaje.getPosX() -  ALTO/2)
+				return true;
+		}
+		//Si llega hasta acá es que no está en el campo visible de nadie, retorna false
+		return false;
+	}
+
 	/*Quiero dejar este método obsoleto, no parece hacer falta si se modifica del proyecto Servidor
 	 * comandos.Talk.ejecutar()
 	 */

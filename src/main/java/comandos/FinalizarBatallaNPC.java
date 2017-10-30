@@ -1,6 +1,7 @@
 package comandos;
 
 import java.io.IOException;
+import java.util.Random;
 
 import estados.Estado;
 import mensajeria.PaqueteFinalizarBatalla;
@@ -21,13 +22,11 @@ public class FinalizarBatallaNPC extends ComandosServer{
 		Servidor.getConector().actualizarInventario( paqueteFinalizarBatalla.getId() );
 		Servidor.getPersonajesConectados().get(escuchaCliente.getPaqueteFinalizarBatalla().getId()).setEstado(Estado.estadoJuego);
 		
-		if( paqueteFinalizarBatalla.getGanadorBatalla() < 0){ // gano el personaje	
+		//Si ganó el NPC, lo reubico
+		if( paqueteFinalizarBatalla.getGanadorBatalla() < 0){
 			Servidor.getUbicacionNPCs().remove( paqueteFinalizarBatalla.getIdEnemigo() );	
-			//PaqueteDeNPC newNPC;
-			//new NPC = 
-					
-			// PaqueteDeNPC newNPC = new PaqueteDeNPC( paqueteFinalizarBatalla.getIdEnemigo() );
-			PaqueteMovimiento newPosicion = new PaqueteMovimiento( paqueteFinalizarBatalla.getIdEnemigo() , 100 + ((float) Math.random() * 500), 10 +( (float)Math.random() * 500));
+			float[] newPos = Servidor.generarPosIso(new Random());
+			PaqueteMovimiento newPosicion = new PaqueteMovimiento( paqueteFinalizarBatalla.getIdEnemigo() , newPos[0], newPos[1]);
 					
 			Servidor.getUbicacionNPCs().put( paqueteFinalizarBatalla.getIdEnemigo(), newPosicion);
 			
