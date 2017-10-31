@@ -12,6 +12,7 @@ import mensajeria.Comando;
 import mensajeria.Paquete;
 import mensajeria.PaqueteAtacar;
 import mensajeria.PaqueteBatalla;
+import mensajeria.PaqueteBatallaNPC;
 import mensajeria.PaqueteDeMovimientos;
 import mensajeria.PaqueteNPCs;
 import mensajeria.PaqueteDePersonajes;
@@ -33,6 +34,7 @@ public class EscuchaCliente extends Thread {
 	private PaqueteNPC paqueteNPC;
 	private PaqueteMovimiento paqueteMovimiento;
 	private PaqueteBatalla paqueteBatalla;
+	private PaqueteBatallaNPC paqueteBatallaNPC;
 	private PaqueteAtacar paqueteAtacar;
 	private PaqueteFinalizarBatalla paqueteFinalizarBatalla;
 	private PaqueteUsuario paqueteUsuario;
@@ -190,6 +192,20 @@ public class EscuchaCliente extends Thread {
 	 */
 	public void setPaqueteNPC(PaqueteNPC paqueteNPC) {
 		this.paqueteNPC = paqueteNPC;
+	}
+
+	/**
+	 * @return the paqueteBatallaNPC
+	 */
+	public PaqueteBatallaNPC getPaqueteBatallaNPC() {
+		return paqueteBatallaNPC;
+	}
+
+	/**
+	 * @param paqueteBatallaNPC the paqueteBatallaNPC to set
+	 */
+	public void setPaqueteBatallaNPC(PaqueteBatallaNPC paqueteBatallaNPC) {
+		this.paqueteBatallaNPC = paqueteBatallaNPC;
 	}
 }
 
