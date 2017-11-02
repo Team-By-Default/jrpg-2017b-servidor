@@ -13,14 +13,17 @@ public class FinalizarBatallaNPC extends ComandosServer{
 
 	@Override
 	public void ejecutar() {
-		
+		//Recibo el paquete de finalizar batalla
 		PaqueteFinalizarBatalla paqueteFinalizarBatalla = (PaqueteFinalizarBatalla) gson.fromJson(cadenaLeida, PaqueteFinalizarBatalla.class);
 		paqueteFinalizarBatalla.setComando(FINALIZARBATALLA);
 		escuchaCliente.setPaqueteFinalizarBatalla(paqueteFinalizarBatalla);
 		
-		
+		//El personaje ya no está peleando
 		Servidor.getConector().actualizarInventario( paqueteFinalizarBatalla.getId() );
 		Servidor.getPersonajesConectados().get(escuchaCliente.getPaqueteFinalizarBatalla().getId()).setEstado(Estado.estadoJuego);
+		
+		//El NPC ya no está peleando
+		Servidor.getNPCs().get(paqueteFinalizarBatalla.getIdEnemigo()).setPeleando(false);
 		
 		//Si ganó el NPC, lo reubico
 		if( paqueteFinalizarBatalla.getGanadorBatalla() < 0){
@@ -29,7 +32,6 @@ public class FinalizarBatallaNPC extends ComandosServer{
 			PaqueteMovimiento newPosicion = new PaqueteMovimiento( paqueteFinalizarBatalla.getIdEnemigo() , newPos[0], newPos[1]);
 					
 			Servidor.getUbicacionNPCs().put( paqueteFinalizarBatalla.getIdEnemigo(), newPosicion);
-			
 		}
 		
 		
