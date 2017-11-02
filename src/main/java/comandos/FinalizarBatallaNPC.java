@@ -22,7 +22,7 @@ public class FinalizarBatallaNPC extends ComandosServer{
 		escuchaCliente.setPaqueteFinalizarBatalla(paqueteFinalizarBatalla);
 		
 		//El personaje ya no está peleando
-		Servidor.getConector().actualizarInventario( paqueteFinalizarBatalla.getId() );
+		Servidor.getConector().agregarItemInventario( paqueteFinalizarBatalla.getId() );
 		Servidor.getPersonajesConectados().get(escuchaCliente.getPaqueteFinalizarBatalla().getId()).setEstado(Estado.estadoJuego);
 		
 		//El NPC ya no está peleando
