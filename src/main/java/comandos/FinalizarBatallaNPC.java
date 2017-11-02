@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.Random;
 
 import estados.Estado;
+import mensajeria.Comando;
+import mensajeria.PaqueteDePersonajes;
 import mensajeria.PaqueteFinalizarBatalla;
 import mensajeria.PaqueteMovimiento;
+import mensajeria.PaqueteNPCs;
 import servidor.EscuchaCliente;
 import servidor.Servidor;
 
@@ -35,15 +38,29 @@ public class FinalizarBatallaNPC extends ComandosServer{
 		}
 		
 		
+		//Preparo paquetes y envío
+		PaqueteNPCs pNPCs = new PaqueteNPCs(Servidor.getNPCs());
+		pNPCs.setComando(Comando.ACTUALIZARNPCS);
+		PaqueteDePersonajes personajes = new PaqueteDePersonajes(Servidor.getPersonajesConectados());
+		
 		for(EscuchaCliente conectado : Servidor.getClientesConectados()) 
 		{
+			//Al personaje de la batalla le envío Finalizar Batalla, a los demás les actualizo los estados de los NPC y personaje
 			if( conectado.getIdPersonaje() == escuchaCliente.getPaqueteFinalizarBatalla().getId() ){
 				try {
 					conectado.getSalida().writeObject(gson.toJson(escuchaCliente.getPaqueteFinalizarBatalla()));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					Servidor.log.append("Falló al intentar enviar finalizarBatalla a:" + conectado.getPaquetePersonaje().getId() + "\n");
 				}
+			}
+			else {
+				try {
+					conectado.getSalida().writeObject(gson.toJson(pNPCs));
+					conectado.getSalida().writeObject(gson.toJson(personajes));
+				} catch (IOException e) {
+					Servidor.log.append("Falló al intentar enviar actualización de NPCs a " + conectado.getId() + System.lineSeparator());
+				}
+				
 			}
 		}
 
