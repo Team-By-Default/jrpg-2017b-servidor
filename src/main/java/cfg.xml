@@ -4,12 +4,12 @@
 
 <hibernate-configuration>
 	<session-factory>
-		<property name="hibernate.connection.driver.class">
+		<property name="hibernate.connection.driver_class">
 			org.sqlite.JDBC
 		</property>
 		<property name="hibernate.connection.url">
 			<!--Modificar aca para cambiar la BD  -->
-			jdbc.sqlite:primeraBase.bd
+			jdbc:sqlite:primeraBase.bd
 		</property>
 		<property name="hibernate.dialect">
 			com.enigmabridge.hibernate.dialect.SQLiteDialect
@@ -17,7 +17,7 @@
 		<property name="show_sql">true</property>
 		<property name="format_sql">true</property>
 		<!--Agregar un mapping resource por cada clase/tabla que haya que mapear con esta config-->
-		<mapping resource="personaje.xml" />
-		<mapping resource="usuario.xml" />
+		<mapping resource="servidor/PaqueteUsuario.hbm.xml" />
+		<mapping resource="servidor/PaquetePersonaje.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>

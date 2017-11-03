@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0 //EN"
+'http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd'>
+
+<hibernate-mapping>
+	<class name="mensajeria.PaquetePersonaje" table="personaje">
+		<id column="iDPersonaje" name="id" type="int">
+		<generator class="increment"/></id>
+		<property column="idInventario" name="inventario" type="int"/>
+		<property column="idMochila" name="mochila" type="int"/>
+		<property column="casta" name="casta" type="string"/>
+		<property column="raza" name="raza" type="string"/>
+		<property column="fuerza" name="fuerza" type="int"/>
+		<property column="destreza" name="destreza" type="int"/>
+		<property column="inteligencia" name="inteligencia" type="int"/>
+		<property column="saludTope" name="saludTope" type="int"/>
+		<property column="energiaTope" name="energiaTope" type="int"/>
+		<property column="nombre" name="nombre" type="string"/>
+		<property column="experiencia" name="experiencia" type="int"/>
+		<property column="nivel" name="nivel" type="int"/>
+		<property column="idAlianza" name="alianza" type="int"/>
+	</class>
+</hibernate-mapping>

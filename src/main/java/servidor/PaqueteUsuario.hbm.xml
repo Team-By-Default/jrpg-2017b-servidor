@@ -3,9 +3,9 @@
 'http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd'>
 
 <hibernate-mapping>
-	<class name="/jrpg-2017b-cliente/src/main/java/mensajeria/PaqueteUsuario.java" table="registro">
+	<class name="mensajeria.PaqueteUsuario" table="registro">
 		<id column="usuario" name="username" type="string"/>
-		<field column="password" name="password" type="string"/>
-		<field column="idPersonaje" name="idPj" type="int"/>
+		<property column="password" name="password" type="string"/>
+		<property column="idPersonaje" name="idPj" type="int"/>
 	</class>
 </hibernate-mapping>
