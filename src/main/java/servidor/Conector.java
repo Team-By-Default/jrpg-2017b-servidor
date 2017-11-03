@@ -10,19 +10,8 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
-
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.criterion.Restrictions;
 
 import mensajeria.PaquetePersonaje;
 import mensajeria.PaqueteUsuario;
@@ -34,13 +23,17 @@ public class Conector {
 	 */
 	private String url = "primeraBase.bd";
 	Connection connect;
-	
+	Configuration cfg;
+	SessionFactory factory;
 
 	/**
 	 * Establece la conexión con la base de datos
 	 */
 	public void connect() {
 		try {
+			cfg = new Configuration();
+			cfg.configure("hibernate.cfg.xml");
+			factory = cfg.buildSessionFactory();
 			Servidor.log.append("Estableciendo conexión con la base de datos..." + System.lineSeparator());
 			connect = DriverManager.getConnection("jdbc:sqlite:" + url);
 			Servidor.log.append("Conexión con la base de datos establecida con éxito." + System.lineSeparator());
@@ -57,6 +50,7 @@ public class Conector {
 	public void close() {
 		try {
 			connect.close();
+			factory.close();
 		} catch (SQLException ex) {
 			Servidor.log.append("Error al intentar cerrar la conexión con la base de datos." + System.lineSeparator());
 			Logger.getLogger(Conector.class.getName()).log(Level.SEVERE, null, ex);
@@ -71,12 +65,6 @@ public class Conector {
 	public boolean registrarUsuario(PaqueteUsuario user) {
 		ResultSet result = null;
 		try {
-			
-			Configuration cfg;
-			SessionFactory factory;
-			cfg = new Configuration();
-			cfg.configure("hibernate.cfg.xml");
-			factory = cfg.buildSessionFactory();
 			
 			//Busca si ya hay algún usuario con ese nombre
 			PreparedStatement st1 = connect.prepareStatement("SELECT * FROM registro WHERE usuario= ? ");
