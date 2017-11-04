@@ -10,8 +10,19 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Restrictions;
 
 import mensajeria.PaquetePersonaje;
 import mensajeria.PaqueteUsuario;
@@ -25,6 +36,7 @@ public class Conector {
 	Connection connect;
 	Configuration cfg;
 	SessionFactory factory;
+	Session session;
 
 	/**
 	 * Establece la conexión con la base de datos
@@ -63,6 +75,49 @@ public class Conector {
 	 * @return True si pudo registrarlo correctamente, false si ocurrió algún error
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
+		
+		// Preparo sesion de hibernate
+		Session session = factory.openSession();
+
+		// Preparo el criteria
+		CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<PaqueteUsuario> cQuery = cBuilder.createQuery(PaqueteUsuario.class);
+		Root<PaqueteUsuario> root = cQuery.from(PaqueteUsuario.class);
+
+		// Ejecuto la query buscando usuarios con ese nombre
+		cQuery.select(root).where(cBuilder.equal(root.get("username"), user.getUsername()));
+
+		// Si no existen usuarios con ese nombre
+		if (session.createQuery(cQuery).getResultList().isEmpty()) {
+			// Registro el usuario
+			Transaction transaccion = session.beginTransaction();
+			session.save(user);
+			session.flush();
+			transaccion.commit();
+			try {
+				
+
+			} catch (HibernateException e) {
+				// Si falló, hago un rollback de la transaccion, cierro sesion, escribo el log y
+				// me voy
+				if (transaccion != null)
+					transaccion.rollback();
+				e.printStackTrace();
+
+				Servidor.log
+						.append("Eror al intentar registrar el usuario " + user.getUsername() + System.lineSeparator());
+				return false;
+			}
+		} else {
+			// Si ya existe un usuario con ese nombre, cierro sesion, escribo el log y me
+			Servidor.log
+					.append("El usuario " + user.getUsername() + " ya se encuentra en uso." + System.lineSeparator());
+			return false;
+		}
+		Servidor.log.append("El usuario " + user.getUsername() + " se ha registrado." + System.lineSeparator());
+		return true;
+		
+		/*OLDIE
 		ResultSet result = null;
 		try {
 			
@@ -90,7 +145,7 @@ public class Conector {
 			Servidor.log.append("Eror al intentar registrar el usuario " + user.getUsername() + System.lineSeparator());
 			System.err.println(ex.getMessage());
 			return false;
-		}
+		}*/
 
 	}
 
