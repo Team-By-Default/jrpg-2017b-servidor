@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0 //EN"
+'http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd'>
+
+<hibernate-mapping>
+<class name="servidor.Inventario" table="inventario">
+		<id column="idInventario" name="id" type="int"/>
+		<property column="manos1" name="manos1" type="int"/>
+		<property column="manos2" name="manos2" type="int"/>
+		<property column="pie" name="pie" type="int"/>
+		<property column="cabeza" name="cabeza" type="int"/>
+		<property column="pecho" name="pecho" type="int"/>
+		<property column="accesorio" name="accesorio" type="int"/>
+		
+	</class>
+</hibernate-mapping>
