@@ -19,5 +19,6 @@
 		<!--Agregar un mapping resource por cada clase/tabla que haya que mapear con esta config-->
 		<mapping resource="servidor/PaqueteUsuario.hbm.xml" />
 		<mapping resource="servidor/PaquetePersonaje.hbm.xml" />
+		<mapping resource="servidor/mochila.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>
