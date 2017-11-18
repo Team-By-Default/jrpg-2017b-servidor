@@ -75,7 +75,7 @@ public class Conector {
 	 * @return True si pudo registrarlo correctamente, false si ocurrió algún error
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
-		
+		/*
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
 
@@ -116,8 +116,7 @@ public class Conector {
 		}
 		Servidor.log.append("El usuario " + user.getUsername() + " se ha registrado." + System.lineSeparator());
 		return true;
-		
-		/*OLDIE
+		*/
 		ResultSet result = null;
 		try {
 			
@@ -145,7 +144,7 @@ public class Conector {
 			Servidor.log.append("Eror al intentar registrar el usuario " + user.getUsername() + System.lineSeparator());
 			System.err.println(ex.getMessage());
 			return false;
-		}*/
+		}
 
 	}
 
@@ -222,18 +221,12 @@ public class Conector {
 	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
 		try {
-			// Preparo la consulta para el registro el inventario en la base de
-			// datos
-			PreparedStatement stRegistrarInventario = connect.prepareStatement("INSERT INTO inventario(idInventario,manos1,manos2,pie,cabeza,pecho,accesorio) VALUES (?,-1,-1,-1,-1,-1,-1)");
-			stRegistrarInventario.setInt(1, idInventarioMochila);
-
 			// Preparo la consulta para el registro la mochila en la base de
 			// datos
 			PreparedStatement stRegistrarMochila = connect.prepareStatement("INSERT INTO mochila(idMochila,item1,item2,item3,item4,item5,item6,item7,item8,item9,item10,item11,item12,item13,item14,item15,item16,item17,item18,item19,item20) VALUES(?,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1)");
 			stRegistrarMochila.setInt(1, idInventarioMochila);
 
-			// Registro inventario y mochila
-			stRegistrarInventario.execute();
+			// Registro mochila
 			stRegistrarMochila.execute();
 
 			// Le asigno el inventario y la mochila al personaje
