@@ -75,7 +75,7 @@ public class Conector {
 	 * @return True si pudo registrarlo correctamente, false si ocurrió algún error
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
-		
+		/*
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
 
@@ -116,8 +116,7 @@ public class Conector {
 		}
 		Servidor.log.append("El usuario " + user.getUsername() + " se ha registrado." + System.lineSeparator());
 		return true;
-		
-		/*OLDIE
+		*/
 		ResultSet result = null;
 		try {
 			
@@ -145,7 +144,7 @@ public class Conector {
 			Servidor.log.append("Eror al intentar registrar el usuario " + user.getUsername() + System.lineSeparator());
 			System.err.println(ex.getMessage());
 			return false;
-		}*/
+		}
 
 	}
 

@@ -21,5 +21,6 @@
 		<mapping resource="servidor/Item.hbm.xml" />
 		<mapping resource="servidor/PaqueteUsuario.hbm.xml" />
 		<mapping resource="servidor/PaquetePersonaje.hbm.xml" />
+		<mapping resource="servidor/mochila.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>
