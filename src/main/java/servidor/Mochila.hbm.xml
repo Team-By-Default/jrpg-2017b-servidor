@@ -4,7 +4,7 @@
 
 <hibernate-mapping>
 <class name="dominio.Mochila" table="mochila">
-		<id column="idMochila" name="mochila" type="int"/>
+		<id column="idMochila" name="mochila" type="int"/> 
 		<property column="item1" name="item1" type="int"/>
 		<property column="item2" name="item2" type="int"/>
 		<property column="item3" name="item3" type="int"/>
