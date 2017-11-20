@@ -511,39 +511,6 @@ public class Conector {
 		} catch (SQLException e) {
 			Servidor.log.append("Falló al intentar actualizar inventario de"+ idPersonaje + "\n");
 		}
-		
-		/*Versión anterior
-	    
-	    int i = 0;
-	    PaquetePersonaje paquetePersonaje = Servidor.getPersonajesConectados().get(idPersonaje);
-	    PreparedStatement stActualizarMochila;
-	    try {
-	      stActualizarMochila = connect.prepareStatement(
-	          "UPDATE mochila SET item1=? ,item2=? ,item3=? ,item4=? ,item5=? ,item6=? ,item7=? ,item8=? ,item9=? "
-	              + ",item10=? ,item11=? ,item12=? ,item13=? ,item14=? ,item15=? ,item16=? ,item17=? ,item18=? ,item19=? ,item20=? WHERE idMochila=?");
-	      while (i < paquetePersonaje.getCantItems()) {
-	        stActualizarMochila.setInt(i + 1, paquetePersonaje.getItemID(i));
-	        i++;
-	      }
-	      if( paquetePersonaje.getCantItems() < 9) {
-	        int itemGanado = new Random().nextInt(29);
-	        itemGanado += 1;
-	        stActualizarMochila.setInt(paquetePersonaje.getCantItems()+1, itemGanado);
-	        for (int j = paquetePersonaje.getCantItems()+2; j < 20; j++) {
-	          stActualizarMochila.setInt(j, -1);
-	        }
-	      } else {
-	        for (int j = paquetePersonaje.getCantItems()+1; j < 20; j++) {
-	          stActualizarMochila.setInt(j, -1);
-	        }
-	      }
-	      stActualizarMochila.setInt(21, paquetePersonaje.getId());
-	      stActualizarMochila.executeUpdate();
-
-	    } catch (SQLException e) {
-	      Servidor.log.append("Falló al intentar actualizar inventario de"+ idPersonaje + "\n");
-	    }
-	    */
 	}
 
 	/**
