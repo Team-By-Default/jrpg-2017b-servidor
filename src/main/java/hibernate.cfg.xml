@@ -17,6 +17,7 @@
 		<property name="show_sql">true</property>
 		<property name="format_sql">true</property>
 		<!--Agregar un mapping resource por cada clase/tabla que haya que mapear con esta config-->
+		<mapping resource="servidor/Mochila.hbm.xml" />
 		<mapping resource="servidor/PaqueteUsuario.hbm.xml" />
 		<mapping resource="servidor/PaquetePersonaje.hbm.xml" />
 	</session-factory>

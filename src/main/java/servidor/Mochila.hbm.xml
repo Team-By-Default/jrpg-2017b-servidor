@@ -3,7 +3,7 @@
 'http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd'>
 
 <hibernate-mapping>
-<class name="servidor.Mochila" table="mochila">
+<class name="dominio.Mochila" table="mochila">
 		<id column="idMochila" name="mochila" type="int"/>
 		<property column="item1" name="item1" type="int"/>
 		<property column="item2" name="item2" type="int"/>
