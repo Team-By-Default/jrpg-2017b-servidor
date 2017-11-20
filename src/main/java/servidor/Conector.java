@@ -75,7 +75,7 @@ public class Conector {
 	 * @return True si pudo registrarlo correctamente, false si ocurrió algún error
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
-		/*
+		
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
 
@@ -89,14 +89,13 @@ public class Conector {
 
 		// Si no existen usuarios con ese nombre
 		if (session.createQuery(cQuery).getResultList().isEmpty()) {
+
 			// Registro el usuario
 			Transaction transaccion = session.beginTransaction();
-			session.save(user);
-			session.flush();
-			transaccion.commit();
 			try {
-				
-
+				session.save(user);
+				session.flush();
+				transaccion.commit();
 			} catch (HibernateException e) {
 				// Si falló, hago un rollback de la transaccion, cierro sesion, escribo el log y
 				// me voy
@@ -116,7 +115,8 @@ public class Conector {
 		}
 		Servidor.log.append("El usuario " + user.getUsername() + " se ha registrado." + System.lineSeparator());
 		return true;
-		*/
+		
+		/*
 		ResultSet result = null;
 		try {
 			
@@ -145,7 +145,7 @@ public class Conector {
 			System.err.println(ex.getMessage());
 			return false;
 		}
-
+		*/
 	}
 
 	/**
@@ -154,8 +154,66 @@ public class Conector {
 	 * @param paqueteUsuario: paquete con los datos del usuario
 	 * @return true si se pudo registrar, false si hubo problemas
 	 */
-	public boolean registrarPersonaje(PaquetePersonaje paquetePersonaje, PaqueteUsuario paqueteUsuario) {
+	public boolean registrarPersonaje(PaquetePersonaje personaje, PaqueteUsuario user) {
 
+		// Preparo sesion de hibernate
+		Session session = factory.openSession();
+		
+		// Preparo el criteria
+		//CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+		//CriteriaQuery<PaqueteUsuario> cQuery = cBuilder.createQuery(PaqueteUsuario.class);
+		//Root<PaqueteUsuario> root = cQuery.from(PaqueteUsuario.class);
+		
+		int personajeId;
+		
+		//Registro el personaje
+		Transaction transaccion = session.beginTransaction();
+		try {
+			personajeId = (Integer) session.save(personaje);
+			session.flush();
+			transaccion.commit();
+		}catch (HibernateException e) {
+			// Si falló, hago un rollback de la transaccion, cierro sesion, escribo el log y me voy
+			if (transaccion != null)
+				transaccion.rollback();
+			e.printStackTrace();
+
+			Servidor.log
+					.append("Eror al intentar registrar el personaje del usuario " + user.getUsername() + System.lineSeparator());
+			return false;
+		}
+		
+		//Asigno el id al personaje y lo asocio al usuario
+		personaje.setId(personajeId);
+		user.setIdPj(personajeId);
+		
+		//Guardo usuario con el nuevo personaje asociado
+		transaccion = session.beginTransaction();
+		try {
+			session.saveOrUpdate(user);
+			session.flush();
+			transaccion.commit();
+		} catch (HibernateException e) {
+			// Si falló, hago un rollback de la transaccion, cierro sesion, escribo el log y me voy
+			if (transaccion != null)
+				transaccion.rollback();
+			e.printStackTrace();
+
+			Servidor.log
+					.append("Eror al intentar asociar el personaje al usuario " + user.getUsername() + System.lineSeparator());
+			return false;
+		}
+		
+		if (this.registrarInventarioMochila(personajeId)) {
+			Servidor.log.append("El usuario " + user.getUsername() + " ha creado el personaje "
+					+ personaje.getId() + System.lineSeparator());
+			return true;
+		} else {
+			Servidor.log.append("Error al registrar la mochila y el inventario del usuario " + user.getUsername() + " con el personaje" + personaje.getId() + System.lineSeparator());
+			return false;
+		}
+		
+		/*
 		try {
 
 			// Registro al personaje en la base de datos
@@ -164,14 +222,14 @@ public class Conector {
 					PreparedStatement.RETURN_GENERATED_KEYS);
 			stRegistrarPersonaje.setInt(1, -1);
 			stRegistrarPersonaje.setInt(2, -1);
-			stRegistrarPersonaje.setString(3, paquetePersonaje.getCasta());
-			stRegistrarPersonaje.setString(4, paquetePersonaje.getRaza());
-			stRegistrarPersonaje.setInt(5, paquetePersonaje.getFuerza());
-			stRegistrarPersonaje.setInt(6, paquetePersonaje.getDestreza());
-			stRegistrarPersonaje.setInt(7, paquetePersonaje.getInteligencia());
-			stRegistrarPersonaje.setInt(8, paquetePersonaje.getSaludTope());
-			stRegistrarPersonaje.setInt(9, paquetePersonaje.getEnergiaTope());
-			stRegistrarPersonaje.setString(10, paquetePersonaje.getNombre());
+			stRegistrarPersonaje.setString(3, personaje.getCasta());
+			stRegistrarPersonaje.setString(4, personaje.getRaza());
+			stRegistrarPersonaje.setInt(5, personaje.getFuerza());
+			stRegistrarPersonaje.setInt(6, personaje.getDestreza());
+			stRegistrarPersonaje.setInt(7, personaje.getInteligencia());
+			stRegistrarPersonaje.setInt(8, personaje.getSaludTope());
+			stRegistrarPersonaje.setInt(9, personaje.getEnergiaTope());
+			stRegistrarPersonaje.setString(10, personaje.getNombre());
 			stRegistrarPersonaje.setInt(11, 0);
 			stRegistrarPersonaje.setInt(12, 1);
 			stRegistrarPersonaje.setInt(13, -1);
@@ -185,22 +243,22 @@ public class Conector {
 				int idPersonaje = rs.getInt(1);
 
 				// Le asigno el id al paquete personaje que voy a devolver
-				paquetePersonaje.setId(idPersonaje);
+				personaje.setId(idPersonaje);
 
 				// Le asigno el personaje al usuario
 				PreparedStatement stAsignarPersonaje = connect.prepareStatement("UPDATE registro SET idPersonaje=? WHERE usuario=? AND password=?");
 				stAsignarPersonaje.setInt(1, idPersonaje);
-				stAsignarPersonaje.setString(2, paqueteUsuario.getUsername());
-				stAsignarPersonaje.setString(3, paqueteUsuario.getPassword());
+				stAsignarPersonaje.setString(2, user.getUsername());
+				stAsignarPersonaje.setString(3, user.getPassword());
 				stAsignarPersonaje.execute();
 
 				// Por ultimo registro el inventario y la mochila
 				if (this.registrarInventarioMochila(idPersonaje)) {
-					Servidor.log.append("El usuario " + paqueteUsuario.getUsername() + " ha creado el personaje "
-							+ paquetePersonaje.getId() + System.lineSeparator());
+					Servidor.log.append("El usuario " + user.getUsername() + " ha creado el personaje "
+							+ personaje.getId() + System.lineSeparator());
 					return true;
 				} else {
-					Servidor.log.append("Error al registrar la mochila y el inventario del usuario " + paqueteUsuario.getUsername() + " con el personaje" + paquetePersonaje.getId() + System.lineSeparator());
+					Servidor.log.append("Error al registrar la mochila y el inventario del usuario " + user.getUsername() + " con el personaje" + personaje.getId() + System.lineSeparator());
 					return false;
 				}
 			}
@@ -208,10 +266,10 @@ public class Conector {
 
 		} catch (SQLException e) {
 			Servidor.log.append(
-					"Error al intentar crear el personaje " + paquetePersonaje.getNombre() + System.lineSeparator());
+					"Error al intentar crear el personaje " + personaje.getNombre() + System.lineSeparator());
 			return false;
 		}
-
+		*/
 	}
 	
 	/**
@@ -220,6 +278,9 @@ public class Conector {
 	 * @return true si se pudo registrar, false si hubo problemas
 	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
+		
+		
+		
 		try {
 			// Preparo la consulta para el registro la mochila en la base de
 			// datos
