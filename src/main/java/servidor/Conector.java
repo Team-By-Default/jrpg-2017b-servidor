@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +26,8 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
 
+import antlr.collections.List;
+import dominio.Item;
 import dominio.Mochila;
 import mensajeria.PaquetePersonaje;
 import mensajeria.PaqueteUsuario;
@@ -44,10 +48,12 @@ public class Conector {
 	 */
 	public void connect() {
 		try {
+			Servidor.log.append("Estableciendo conexión con la base de datos..." + System.lineSeparator());
+			//Hibernate
 			cfg = new Configuration();
 			cfg.configure("hibernate.cfg.xml");
 			factory = cfg.buildSessionFactory();
-			Servidor.log.append("Estableciendo conexión con la base de datos..." + System.lineSeparator());
+			//JDBC
 			connect = DriverManager.getConnection("jdbc:sqlite:" + url);
 			Servidor.log.append("Conexión con la base de datos establecida con éxito." + System.lineSeparator());
 			
@@ -77,6 +83,8 @@ public class Conector {
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
 		
+		System.out.println("Registrar Usuario");
+		
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
 
@@ -104,17 +112,19 @@ public class Conector {
 					transaccion.rollback();
 				e.printStackTrace();
 
-				Servidor.log
-						.append("Eror al intentar registrar el usuario " + user.getUsername() + System.lineSeparator());
+				Servidor.log.append("Eror al intentar registrar el usuario " + user.getUsername() + System.lineSeparator());
+				session.close();
 				return false;
 			}
 		} else {
-			// Si ya existe un usuario con ese nombre, cierro sesion, escribo el log y me
+			// Si ya existe un usuario con ese nombre, cierro sesion, escribo el log y me voy
 			Servidor.log
 					.append("El usuario " + user.getUsername() + " ya se encuentra en uso." + System.lineSeparator());
+			session.close();
 			return false;
 		}
 		Servidor.log.append("El usuario " + user.getUsername() + " se ha registrado." + System.lineSeparator());
+		session.close();
 		return true;
 		
 		/*
@@ -157,6 +167,8 @@ public class Conector {
 	 */
 	public boolean registrarPersonaje(PaquetePersonaje personaje, PaqueteUsuario user) {
 
+		System.out.println("Registrar personaje");
+		
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
 		
@@ -174,8 +186,9 @@ public class Conector {
 				transaccion.rollback();
 			e.printStackTrace();
 
-			Servidor.log
-					.append("Eror al intentar registrar el personaje del usuario " + user.getUsername() + System.lineSeparator());
+			Servidor.log.append("Eror al intentar registrar el personaje del "
+					+ "usuario " + user.getUsername() + System.lineSeparator());
+			session.close();
 			return false;
 		}
 		
@@ -199,17 +212,22 @@ public class Conector {
 				transaccion.rollback();
 			e.printStackTrace();
 
-			Servidor.log
-					.append("Eror al intentar asociar el personaje al usuario " + user.getUsername() + System.lineSeparator());
+			Servidor.log.append("Eror al intentar asociar el personaje al "
+					+ "usuario " + user.getUsername() + System.lineSeparator());
+			session.close();
 			return false;
 		}
 		
 		if (this.registrarInventarioMochila(personajeId)) {
 			Servidor.log.append("El usuario " + user.getUsername() + " ha creado el personaje "
 					+ personaje.getId() + System.lineSeparator());
+			session.close();
 			return true;
 		} else {
-			Servidor.log.append("Error al registrar la mochila y el inventario del usuario " + user.getUsername() + " con el personaje" + personaje.getId() + System.lineSeparator());
+			Servidor.log.append("Error al registrar la mochila y el inventario del "
+					+ "usuario " + user.getUsername() + " con el personaje " + 
+					personaje.getId() + System.lineSeparator());
+			session.close();
 			return false;
 		}
 		
@@ -279,14 +297,18 @@ public class Conector {
 	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
 		
+		System.out.println("Registrar Inventario Mochila");
+		
 		//Preparo la sesion
 		Session session = factory.openSession();
+
+		//Preparo la mochila
+		Mochila mochila = new Mochila();
+		mochila.setMochila(idInventarioMochila);
 		
 		//Registro la mochila
 		Transaction transaccion = session.beginTransaction();
 		try {
-			Mochila mochila = new Mochila();
-			mochila.setMochila(idInventarioMochila);
 			session.save(mochila);
 			session.flush();
 			transaccion.commit();
@@ -295,11 +317,12 @@ public class Conector {
 			if (transaccion != null)
 				transaccion.rollback();
 			e.printStackTrace();
-
+			session.close();
 			Servidor.log.append("Error al registrar el inventario de " + idInventarioMochila + System.lineSeparator());
 			return false;
 		}
 		Servidor.log.append("Se ha registrado el inventario de " + idInventarioMochila + System.lineSeparator());
+		session.close();
 		return true;
 		
 		/*
@@ -336,6 +359,9 @@ public class Conector {
 	 * @return true si se autenticó correctamente, false si hubo problemas
 	 */
 	public boolean loguearUsuario(PaqueteUsuario user) {
+		
+		System.out.println("Loguear usuario");
+		
 		ResultSet result = null;
 		try {
 			// Busco usuario y contraseña
@@ -348,18 +374,25 @@ public class Conector {
 			// Si existe inicio sesion
 			if (result.next()) {
 				Servidor.log.append("El usuario " + user.getUsername() + " ha iniciado sesión." + System.lineSeparator());
+				connect.close();
 				return true;
 			}
 
 			// Si no existe informo y devuelvo false
 			Servidor.log.append("El usuario " + user.getUsername() + " ha realizado un intento fallido de inicio de sesión." + System.lineSeparator());
+			connect.close();
 			return false;
 
 		} catch (SQLException e) {
 			Servidor.log.append("El usuario " + user.getUsername() + " fallo al iniciar sesión." + System.lineSeparator());
+			try {
+				connect.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			return false;
 		}
-
 	}
 
 	/**
@@ -367,6 +400,67 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con los datos del personaje
 	 */
 	public void actualizarPersonaje(PaquetePersonaje paquetePersonaje) {
+		
+		System.out.println("Actualizar persoanje");
+		
+		//Preparo la sesion
+		Session session = factory.openSession();
+		Transaction transaccion = session.beginTransaction();
+		
+		//Actualizo el personaje en la BD
+		try {
+			session.update(paquetePersonaje);
+			session.flush();
+			transaccion.commit();
+		} catch (HibernateException e) {
+			if(transaccion != null)
+				transaccion.rollback();
+			e.printStackTrace();
+			
+			Servidor.log.append("Fallo al intentar actualizar el personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
+			session.close();
+			return;
+		}
+		
+		//Actualizo los items en memoria...
+		// Preparo el criteria
+		CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<Mochila> cQueryM = cBuilder.createQuery(Mochila.class);
+		Root<Mochila> rootM = cQueryM.from(Mochila.class);
+
+		try {
+			// Busco la mochila de este personaje
+			cQueryM.select(rootM).where(cBuilder.equal(rootM.get("mochila"), paquetePersonaje.getMochila()));
+	
+			// Si existe la mochila, la seteo
+			LinkedList<Mochila> resultMochila = new LinkedList<Mochila>(session.createQuery(cQueryM).getResultList());
+			if (!resultMochila.isEmpty()) {
+				paquetePersonaje.setBackPack(resultMochila.getFirst());
+				
+				//Pongo todos los items
+				//Preparo el criteria para conseguir los datos de cada item
+				CriteriaQuery<Item> cQueryI = cBuilder.createQuery(Item.class);
+				Root<Item> rootI = cQueryI.from(Item.class);
+				Mochila mochi = paquetePersonaje.getBackPack();
+				//Pongo cada uno de los 9
+				for(int i=0; i<9; i++) {
+					if(mochi.getItem(i) > -1) {
+						cQueryI.select(rootI).where(cBuilder.equal(rootI.get("idItem"), mochi.getItem(i)));
+						if(!session.createQuery(cQueryI).getResultList().isEmpty())
+							paquetePersonaje.anadirItem(session.createQuery(cQueryI).getResultList().get(0));
+					}
+				}
+			}
+		} catch(HibernateException e) {
+			Servidor.log.append("Fallo al intentar recuperar el inventario del personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
+			session.close();
+			return;
+		}
+		
+		Servidor.log.append("El personaje " + paquetePersonaje.getNombre() + " se ha actualizado con éxito."  + System.lineSeparator());
+		session.close();
+		
+		/*
 		try {
 			int i = 2;
 			int j = 1;
@@ -414,7 +508,7 @@ public class Conector {
 		} catch (SQLException e) {
 			Servidor.log.append("Fallo al intentar actualizar el personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
 		}
-		
+		*/
 		
 	}
 	
@@ -425,6 +519,16 @@ public class Conector {
 	 * @throws IOException
 	 */
 	public PaquetePersonaje getPersonaje(PaqueteUsuario user) throws IOException {
+		
+		System.out.println("Get personaje");
+		
+		try {
+			connect = DriverManager.getConnection("jdbc:sqlite:" + url);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ResultSet result = null;
 		ResultSet resultadoItemsID = null;
 		ResultSet resultadoDatoItem = null;
@@ -483,13 +587,26 @@ public class Conector {
 			
 
 			// Devuelvo el paquete personaje con sus datos
+			connect.close();
 			return personaje;
 
 		} catch (SQLException ex) {
 			Servidor.log.append("Fallo al intentar recuperar el personaje " + user.getUsername() + System.lineSeparator());
 			Servidor.log.append(ex.getMessage() + System.lineSeparator());
+			try {
+				connect.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
+		try {
+			connect.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return new PaquetePersonaje();
 	}
 	
@@ -499,6 +616,9 @@ public class Conector {
 	 * @return paquete con los datos del usuario, o con datos por default si hubo algún error
 	 */
 	public PaqueteUsuario getUsuario(String usuario) {
+		
+		System.out.println("Get usuario");
+		
 		ResultSet result = null;
 		PreparedStatement st;
 		
@@ -531,6 +651,33 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con todos los datos del personaje
 	 */
 	public void actualizarInventario(PaquetePersonaje paquetePersonaje) {
+		
+		System.out.println("Actualizar inventario");
+		
+		//Preparo la sesion
+		Session session = factory.openSession();
+		Transaction transaccion = session.beginTransaction();
+		
+		//Actualizo la mochila en memoria
+		paquetePersonaje.getBackPack().setItems(paquetePersonaje.getItems());
+		
+		//Actualizo la mochila en la BD
+		try {
+			session.update(paquetePersonaje.getBackPack());
+			session.flush();
+			transaccion.commit();
+		} catch (HibernateException e) {
+			if(transaccion != null)
+				transaccion.rollback();
+			e.printStackTrace();
+			session.close();
+			Servidor.log.append("Fallo al intentar actualizar el inventario del personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
+			session.close();
+			return;
+		}
+		return;
+		
+		/*
 		int i = 0;
 		PreparedStatement stActualizarMochila;
 		try {
@@ -538,6 +685,7 @@ public class Conector {
 			 * Prepara la instrucción SQL para cargar todos los items del personaje en la BD
 			 * Carga los id de los items que tiene y pone -1 para los que no tiene
 			 */
+		/*
 			stActualizarMochila = connect.prepareStatement(
 					"UPDATE mochila SET item1=? ,item2=? ,item3=? ,item4=? ,item5=? ,item6=? ,item7=? ,item8=? ,item9=? "
 							+ ",item10=? ,item11=? ,item12=? ,item13=? ,item14=? ,item15=? ,item16=? ,item17=? ,item18=? ,item19=? ,item20=? WHERE idMochila=?");
@@ -553,6 +701,7 @@ public class Conector {
 		
 		} catch (SQLException e) {
 		}
+		*/
 	}		
 	
 	/**
@@ -561,6 +710,33 @@ public class Conector {
 	 */
 	public void agregarItemInventario(int idPersonaje) {
 		
+		System.out.println("Agregar item inventario");
+		
+		
+		Session session = factory.openSession();
+		PaquetePersonaje paquetePersonaje = Servidor.getPersonajesConectados().get(idPersonaje);
+		
+		//Si no tiene el inventario lleno, le doy un item mas
+		if(paquetePersonaje.getCantItems() < 9)
+			paquetePersonaje.anadirItem(new Random().nextInt(29) + 1);
+		
+		//Actualizo la mochila en la BD
+		Transaction transaccion = session.beginTransaction();
+		try {
+			session.update(paquetePersonaje.getBackPack());
+			session.flush();
+			transaccion.commit();
+		} catch (HibernateException e) {
+			if(transaccion != null)
+				transaccion.rollback();
+			e.printStackTrace();
+			session.close();
+			Servidor.log.append("Fallo al intentar agregar un item al personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
+		}
+		
+		
+		
+		/*
 		//Preparo las cosas
 		int i = 0;
 		PaquetePersonaje paquetePersonaje = Servidor.getPersonajesConectados().get(idPersonaje);
@@ -594,6 +770,7 @@ public class Conector {
 		} catch (SQLException e) {
 			Servidor.log.append("Falló al intentar actualizar inventario de"+ idPersonaje + "\n");
 		}
+		*/
 	}
 
 	/**
@@ -601,6 +778,26 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con los datos del personaje
 	 */
 	public void actualizarPersonajeSubioNivel(PaquetePersonaje paquetePersonaje) {
+		
+		System.out.println("Actualizar persoanje subio nivel");
+		
+		Session session = factory.openSession();
+		Transaction transaccion = session.beginTransaction();
+		try {
+			session.update(paquetePersonaje);
+			session.flush();
+			transaccion.commit();
+		}catch (HibernateException e) {
+			if(transaccion != null)
+				transaccion.rollback();
+			e.printStackTrace();
+			session.close();
+			Servidor.log.append("Fallo al intentar actualizar el personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
+			return;
+		}
+		Servidor.log.append("El personaje " + paquetePersonaje.getNombre() + " se ha actualizado con éxito."  + System.lineSeparator());
+		
+		/*
 		try {
 			PreparedStatement stActualizarPersonaje = connect
 					.prepareStatement("UPDATE personaje SET fuerza=?, destreza=?, inteligencia=?, saludTope=?, energiaTope=?, experiencia=?, nivel=? "
@@ -621,5 +818,6 @@ public class Conector {
 		} catch (SQLException e) {
 			Servidor.log.append("Fallo al intentar actualizar el personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
 		}
+		*/
 	}
 }
