@@ -24,6 +24,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
 
+import dominio.Mochila;
 import mensajeria.PaquetePersonaje;
 import mensajeria.PaqueteUsuario;
 
@@ -159,11 +160,6 @@ public class Conector {
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
 		
-		// Preparo el criteria
-		//CriteriaBuilder cBuilder = session.getCriteriaBuilder();
-		//CriteriaQuery<PaqueteUsuario> cQuery = cBuilder.createQuery(PaqueteUsuario.class);
-		//Root<PaqueteUsuario> root = cQuery.from(PaqueteUsuario.class);
-		
 		int personajeId;
 		
 		//Registro el personaje
@@ -185,12 +181,16 @@ public class Conector {
 		
 		//Asigno el id al personaje y lo asocio al usuario
 		personaje.setId(personajeId);
+		personaje.setMochila(personajeId);
+		personaje.setInventario(personajeId);
 		user.setIdPj(personajeId);
 		
-		//Guardo usuario con el nuevo personaje asociado
+		//Guardo usuario con el nuevo personaje asociado y el personaje con los ids de mochila e inventario
 		transaccion = session.beginTransaction();
 		try {
 			session.saveOrUpdate(user);
+			session.flush();
+			session.saveOrUpdate(personaje);
 			session.flush();
 			transaccion.commit();
 		} catch (HibernateException e) {
@@ -279,8 +279,30 @@ public class Conector {
 	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
 		
+		//Preparo la sesion
+		Session session = factory.openSession();
 		
+		//Registro la mochila
+		Transaction transaccion = session.beginTransaction();
+		try {
+			Mochila mochila = new Mochila();
+			mochila.setMochila(idInventarioMochila);
+			session.save(mochila);
+			session.flush();
+			transaccion.commit();
+		} catch (HibernateException e) {
+			// Si falló, hago un rollback de la transaccion, cierro sesion, escribo el log y me voy
+			if (transaccion != null)
+				transaccion.rollback();
+			e.printStackTrace();
+
+			Servidor.log.append("Error al registrar el inventario de " + idInventarioMochila + System.lineSeparator());
+			return false;
+		}
+		Servidor.log.append("Se ha registrado el inventario de " + idInventarioMochila + System.lineSeparator());
+		return true;
 		
+		/*
 		try {
 			// Preparo la consulta para el registro la mochila en la base de
 			// datos
@@ -305,6 +327,7 @@ public class Conector {
 			Servidor.log.append("Error al registrar el inventario de " + idInventarioMochila + System.lineSeparator());
 			return false;
 		}
+		*/
 	}
 	
 	/**
