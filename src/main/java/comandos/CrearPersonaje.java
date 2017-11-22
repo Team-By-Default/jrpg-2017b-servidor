@@ -22,9 +22,6 @@ public class CrearPersonaje extends ComandosServer {
 		} catch (IOException e1) {
 			Servidor.log.append("Falló al intentar enviar personaje creado \n");
 		}
-		
-
-
 	}
 
 }
