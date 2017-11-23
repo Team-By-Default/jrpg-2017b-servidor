@@ -291,12 +291,13 @@ public class Conector {
 	}
 	
 	/**
+	 * OBSOLETO
 	 * Registra el inventario y la mochila para un personaje
 	 * @param idInventarioMochila: numero id del personaje, inventario y mochila
 	 * @return true si se pudo registrar, false si hubo problemas
 	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE OBSOLETO------------------------
 		System.out.println("Registrar Inventario Mochila");
 		
 		//Preparo la sesion
@@ -359,7 +360,7 @@ public class Conector {
 	 * @return true si se autenticó correctamente, false si hubo problemas
 	 */
 	public boolean loguearUsuario(PaqueteUsuario user) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Loguear usuario");
 		
 		//Preparo la sesion y el criteria
@@ -423,7 +424,7 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con los datos del personaje
 	 */
 	public void actualizarPersonaje(PaquetePersonaje paquetePersonaje) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Actualizar persoanje");
 		
 		//Preparo la sesion
@@ -546,7 +547,7 @@ public class Conector {
 	 * @throws IOException
 	 */
 	public PaquetePersonaje getPersonaje(PaqueteUsuario user) throws IOException {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Get personaje");
 		
 		//Preparo hibernate y criteria
@@ -693,6 +694,26 @@ public class Conector {
 		
 		System.out.println("Get usuario");
 		
+		//Preparo hibernate y criteria
+		Session session = factory.openSession();
+		CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<PaqueteUsuario> cQuery = cBuilder.createQuery(PaqueteUsuario.class);
+		Root<PaqueteUsuario> root = cQuery.from(PaqueteUsuario.class);
+		
+		//Busco el usuario y lo devuelvo
+		try {
+			cQuery.select(root).where(cBuilder.equal(root.get("username"), usuario));
+			PaqueteUsuario user = session.createQuery(cQuery).getSingleResult();
+			session.close();
+			return user;
+		} catch (HibernateException e) {
+			Servidor.log.append("Fallo al intentar recuperar el usuario " + usuario + System.lineSeparator());
+			session.close();
+		}
+		//Si algo falla, devuelvo un paquete de usuario vacio
+		return new PaqueteUsuario();
+		
+		/*
 		ResultSet result = null;
 		PreparedStatement st;
 		
@@ -718,6 +739,7 @@ public class Conector {
 		}
 		
 		return new PaqueteUsuario();
+		*/
 	}
 
 	/**
@@ -725,7 +747,7 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con todos los datos del personaje
 	 */
 	public void actualizarInventario(PaquetePersonaje paquetePersonaje) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Actualizar inventario");
 		
 		//Preparo la sesion
@@ -783,7 +805,7 @@ public class Conector {
 	 * @param idPersonaje: numero id del personaje
 	 */
 	public void agregarItemInventario(int idPersonaje) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Agregar item inventario");
 		
 		
@@ -855,7 +877,7 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con los datos del personaje
 	 */
 	public void actualizarPersonajeSubioNivel(PaquetePersonaje paquetePersonaje) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Actualizar persoanje subio nivel");
 		
 		Session session = factory.openSession();
