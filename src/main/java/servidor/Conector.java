@@ -586,10 +586,12 @@ public class Conector {
 			}
 			
 			//Devuelvo el personaje listo
+			session.close();
 			return personaje;
 			
 		}catch(HibernateException e) {
 			Servidor.log.append("Fallo al intentar recuperar el personaje " + user.getUsername() + System.lineSeparator());
+			session.close();
 		}
 		//Si hubo algún error, devuelvo un personaje vacío
 		return new PaquetePersonaje();
@@ -746,9 +748,9 @@ public class Conector {
 			e.printStackTrace();
 			session.close();
 			Servidor.log.append("Fallo al intentar actualizar el inventario del personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
-			session.close();
 			return;
 		}
+		session.close();
 		return;
 		
 		/*
@@ -810,7 +812,7 @@ public class Conector {
 			session.close();
 			Servidor.log.append("Fallo al intentar agregar un item al personaje " + paquetePersonaje.getNombre()  + System.lineSeparator());
 		}
-		
+		session.close();
 		
 		
 		/*
@@ -873,7 +875,7 @@ public class Conector {
 			return;
 		}
 		Servidor.log.append("El personaje " + paquetePersonaje.getNombre() + " se ha actualizado con éxito."  + System.lineSeparator());
-		
+		session.close();
 		/*
 		try {
 			PreparedStatement stActualizarPersonaje = connect
