@@ -76,13 +76,15 @@ public class Conector {
 		}
 	}
 	
+	
+	
 	/**
 	 * Guarda un usuario nuevo en la base de datos
 	 * @param user: paquete de usuario con los datos del nuevo usuario
 	 * @return True si pudo registrarlo correctamente, false si ocurrió algún error
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
-		
+		//--------------HIBERNATE------------------------
 		System.out.println("Registrar Usuario");
 		
 		// Preparo sesion de hibernate
@@ -166,7 +168,7 @@ public class Conector {
 	 * @return true si se pudo registrar, false si hubo problemas
 	 */
 	public boolean registrarPersonaje(PaquetePersonaje personaje, PaqueteUsuario user) {
-
+		//--------------HIBERNATE------------------------
 		System.out.println("Registrar personaje");
 		
 		// Preparo sesion de hibernate
@@ -296,7 +298,7 @@ public class Conector {
 	 * @return true si se pudo registrar, false si hubo problemas
 	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
-		
+		//--------------HIBERNATE------------------------
 		System.out.println("Registrar Inventario Mochila");
 		
 		//Preparo la sesion
@@ -359,9 +361,31 @@ public class Conector {
 	 * @return true si se autenticó correctamente, false si hubo problemas
 	 */
 	public boolean loguearUsuario(PaqueteUsuario user) {
-		
+		//--------------HIBERNATE------------------------
 		System.out.println("Loguear usuario");
 		
+		//Preparo la sesion y el criteria
+		Session session = factory.openSession();
+		CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<PaqueteUsuario> cQuery = cBuilder.createQuery(PaqueteUsuario.class);
+		Root<PaqueteUsuario> root = cQuery.from(PaqueteUsuario.class);
+
+		//Busco el par usuario y contrasenia
+		cQuery.select(root).where(cBuilder.equal(root.get("username"), user.getUsername()),
+				cBuilder.equal(root.get("password"), user.getPassword()));
+
+		// Si existe, inicia sesion
+		if (!session.createQuery(cQuery).getResultList().isEmpty()) {
+			Servidor.log.append("El usuario " + user.getUsername() + " ha iniciado sesión." + System.lineSeparator());
+			session.close();
+			return true;
+		}
+		//Si no existe, informo y devuelvo false
+		Servidor.log.append("El usuario " + user.getUsername() + " ha realizado un intento fallido de inicio de sesión." + System.lineSeparator());
+		session.close();
+		return false;
+		
+		/*
 		ResultSet result = null;
 		try {
 			// Busco usuario y contraseña
@@ -393,6 +417,7 @@ public class Conector {
 			}
 			return false;
 		}
+		*/
 	}
 
 	/**
@@ -400,7 +425,7 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con los datos del personaje
 	 */
 	public void actualizarPersonaje(PaquetePersonaje paquetePersonaje) {
-		
+		//--------------HIBERNATE------------------------
 		System.out.println("Actualizar persoanje");
 		
 		//Preparo la sesion
@@ -519,7 +544,7 @@ public class Conector {
 	 * @throws IOException
 	 */
 	public PaquetePersonaje getPersonaje(PaqueteUsuario user) throws IOException {
-		
+		//------------------JDBC------------------------
 		System.out.println("Get personaje");
 		
 		try {
@@ -651,7 +676,7 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con todos los datos del personaje
 	 */
 	public void actualizarInventario(PaquetePersonaje paquetePersonaje) {
-		
+		//--------------HIBERNATE------------------------
 		System.out.println("Actualizar inventario");
 		
 		//Preparo la sesion
@@ -709,7 +734,7 @@ public class Conector {
 	 * @param idPersonaje: numero id del personaje
 	 */
 	public void agregarItemInventario(int idPersonaje) {
-		
+		//--------------HIBERNATE------------------------
 		System.out.println("Agregar item inventario");
 		
 		
@@ -778,7 +803,7 @@ public class Conector {
 	 * @param paquetePersonaje: paquete con los datos del personaje
 	 */
 	public void actualizarPersonajeSubioNivel(PaquetePersonaje paquetePersonaje) {
-		
+		//--------------HIBERNATE------------------------
 		System.out.println("Actualizar persoanje subio nivel");
 		
 		Session session = factory.openSession();
