@@ -465,12 +465,16 @@ public class Conector {
 				CriteriaQuery<Item> cQueryI = cBuilder.createQuery(Item.class);
 				Root<Item> rootI = cQueryI.from(Item.class);
 				Mochila mochi = paquetePersonaje.getBackPack();
+				
+				//Le borro los items al personaje en memoria
+				paquetePersonaje.eliminarItems();
+				
 				//Pongo cada uno de los 9
 				for(int i=0; i<9; i++) {
 					if(mochi.getItem(i) > -1) {
 						cQueryI.select(rootI).where(cBuilder.equal(rootI.get("idItem"), mochi.getItem(i)));
 						if(!session.createQuery(cQueryI).getResultList().isEmpty())
-							paquetePersonaje.anadirItem(session.createQuery(cQueryI).getResultList().get(0));
+							paquetePersonaje.anadirItemYBonus(session.createQuery(cQueryI).getResultList().get(0));
 					}
 				}
 			}
@@ -577,7 +581,7 @@ public class Conector {
 			for(int i=0; i<9; i++) {
 				if(mochi.getItem(i) > -1) {
 					queryItem.select(rootItem).where(cBuilder.equal(rootItem.get("idItem"), mochi.getItem(i)));
-					personaje.anadirItem(session.createQuery(queryItem).getSingleResult());
+					personaje.anadirItemYBonus(session.createQuery(queryItem).getSingleResult());
 				}
 			}
 			
