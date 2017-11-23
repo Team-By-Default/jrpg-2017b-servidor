@@ -719,6 +719,7 @@ public class Conector {
 		ResultSet result = null;
 		PreparedStatement st;
 		
+		
 		try {
 			//Prepara y ejecuta una instrucción SQL para traer los datos del usuario
 			st = connect.prepareStatement("SELECT * FROM registro WHERE usuario = ?");
