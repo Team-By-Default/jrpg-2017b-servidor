@@ -544,9 +544,55 @@ public class Conector {
 	 * @throws IOException
 	 */
 	public PaquetePersonaje getPersonaje(PaqueteUsuario user) throws IOException {
-		//------------------JDBC------------------------
+		//--------------HIBERNATE------------------------
 		System.out.println("Get personaje");
 		
+		//Preparo hibernate y criteria
+		Session session = factory.openSession();
+		CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+		
+		CriteriaQuery<PaqueteUsuario> queryUser = cBuilder.createQuery(PaqueteUsuario.class);
+		CriteriaQuery<PaquetePersonaje> queryPj = cBuilder.createQuery(PaquetePersonaje.class);
+		CriteriaQuery<Mochila> queryMochi = cBuilder.createQuery(Mochila.class);
+		CriteriaQuery<Item> queryItem = cBuilder.createQuery(Item.class);
+		
+		Root<PaqueteUsuario> rootUser = queryUser.from(PaqueteUsuario.class);
+		Root<PaquetePersonaje> rootPj = queryPj.from(PaquetePersonaje.class);
+		Root<Mochila> rootMochi = queryMochi.from(Mochila.class);
+		Root<Item> rootItem = queryItem.from(Item.class);
+		
+		try {
+			//Busco el usuario para levantar el id del personaje asociado
+			queryUser.select(rootUser).where(cBuilder.equal(rootUser.get("username"), user.getUsername()));
+			int pjId = session.createQuery(queryUser).getSingleResult().getIdPj();
+			
+			//Busco el personaje
+			queryPj.select(rootPj).where(cBuilder.equal(rootPj.get("id"), pjId));
+			PaquetePersonaje personaje = session.createQuery(queryPj).getSingleResult();
+			
+			//Busco la mochila y se la pongo al personaje
+			queryMochi.select(rootMochi).where(cBuilder.equal(rootMochi.get("mochila"), pjId));
+			Mochila mochi = session.createQuery(queryMochi).getSingleResult();
+			personaje.setBackPack(mochi);
+			
+			//Busco los items y se los asigno al personaje
+			for(int i=0; i<9; i++) {
+				if(mochi.getItem(i) > -1) {
+					queryItem.select(rootItem).where(cBuilder.equal(rootItem.get("idItem"), mochi.getItem(i)));
+					personaje.anadirItem(session.createQuery(queryItem).getSingleResult());
+				}
+			}
+			
+			//Devuelvo el personaje listo
+			return personaje;
+			
+		}catch(HibernateException e) {
+			Servidor.log.append("Fallo al intentar recuperar el personaje " + user.getUsername() + System.lineSeparator());
+		}
+		//Si hubo algún error, devuelvo un personaje vacío
+		return new PaquetePersonaje();
+		
+		/*
 		try {
 			connect = DriverManager.getConnection("jdbc:sqlite:" + url);
 		} catch (SQLException e) {
@@ -633,6 +679,7 @@ public class Conector {
 			e.printStackTrace();
 		}
 		return new PaquetePersonaje();
+		*/
 	}
 	
 	/**
