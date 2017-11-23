@@ -38,7 +38,6 @@ public class Conector {
 	 * Path del archivo de la base de datos
 	 */
 	private String url = "primeraBase.bd";
-	Connection connect;
 	Configuration cfg;
 	SessionFactory factory;
 	Session session;
@@ -53,11 +52,9 @@ public class Conector {
 			cfg = new Configuration();
 			cfg.configure("hibernate.cfg.xml");
 			factory = cfg.buildSessionFactory();
-			//JDBC
-			connect = DriverManager.getConnection("jdbc:sqlite:" + url);
 			Servidor.log.append("Conexión con la base de datos establecida con éxito." + System.lineSeparator());
 			
-		} catch (SQLException ex) {
+		} catch (HibernateException ex) {
 			Servidor.log.append("Fallo al intentar establecer la conexión con la base de datos. " + ex.getMessage()
 					+ System.lineSeparator());
 		}
@@ -68,9 +65,8 @@ public class Conector {
 	 */
 	public void close() {
 		try {
-			connect.close();
 			factory.close();
-		} catch (SQLException ex) {
+		} catch (HibernateException ex) {
 			Servidor.log.append("Error al intentar cerrar la conexión con la base de datos." + System.lineSeparator());
 			Logger.getLogger(Conector.class.getName()).log(Level.SEVERE, null, ex);
 		}
@@ -230,64 +226,6 @@ public class Conector {
 				+ personaje.getId() + System.lineSeparator());
 		session.close();
 		return true;
-		
-		/*
-		try {
-
-			// Registro al personaje en la base de datos
-			PreparedStatement stRegistrarPersonaje = connect.prepareStatement(
-					"INSERT INTO personaje (idInventario, idMochila,casta,raza,fuerza,destreza,inteligencia,saludTope,energiaTope,nombre,experiencia,nivel,idAlianza) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-					PreparedStatement.RETURN_GENERATED_KEYS);
-			stRegistrarPersonaje.setInt(1, -1);
-			stRegistrarPersonaje.setInt(2, -1);
-			stRegistrarPersonaje.setString(3, personaje.getCasta());
-			stRegistrarPersonaje.setString(4, personaje.getRaza());
-			stRegistrarPersonaje.setInt(5, personaje.getFuerza());
-			stRegistrarPersonaje.setInt(6, personaje.getDestreza());
-			stRegistrarPersonaje.setInt(7, personaje.getInteligencia());
-			stRegistrarPersonaje.setInt(8, personaje.getSaludTope());
-			stRegistrarPersonaje.setInt(9, personaje.getEnergiaTope());
-			stRegistrarPersonaje.setString(10, personaje.getNombre());
-			stRegistrarPersonaje.setInt(11, 0);
-			stRegistrarPersonaje.setInt(12, 1);
-			stRegistrarPersonaje.setInt(13, -1);
-			stRegistrarPersonaje.execute();
-
-			// Recupero la última key generada
-			ResultSet rs = stRegistrarPersonaje.getGeneratedKeys();
-			if (rs != null && rs.next()) {
-
-				// Obtengo el id
-				int idPersonaje = rs.getInt(1);
-
-				// Le asigno el id al paquete personaje que voy a devolver
-				personaje.setId(idPersonaje);
-
-				// Le asigno el personaje al usuario
-				PreparedStatement stAsignarPersonaje = connect.prepareStatement("UPDATE registro SET idPersonaje=? WHERE usuario=? AND password=?");
-				stAsignarPersonaje.setInt(1, idPersonaje);
-				stAsignarPersonaje.setString(2, user.getUsername());
-				stAsignarPersonaje.setString(3, user.getPassword());
-				stAsignarPersonaje.execute();
-
-				// Por ultimo registro el inventario y la mochila
-				if (this.registrarInventarioMochila(idPersonaje)) {
-					Servidor.log.append("El usuario " + user.getUsername() + " ha creado el personaje "
-							+ personaje.getId() + System.lineSeparator());
-					return true;
-				} else {
-					Servidor.log.append("Error al registrar la mochila y el inventario del usuario " + user.getUsername() + " con el personaje" + personaje.getId() + System.lineSeparator());
-					return false;
-				}
-			}
-			return false;
-
-		} catch (SQLException e) {
-			Servidor.log.append(
-					"Error al intentar crear el personaje " + personaje.getNombre() + System.lineSeparator());
-			return false;
-		}
-		*/
 	}
 	
 	/**
@@ -383,40 +321,6 @@ public class Conector {
 		Servidor.log.append("El usuario " + user.getUsername() + " ha realizado un intento fallido de inicio de sesión." + System.lineSeparator());
 		session.close();
 		return false;
-		
-		/*
-		ResultSet result = null;
-		try {
-			// Busco usuario y contraseña
-			PreparedStatement st = connect
-					.prepareStatement("SELECT * FROM registro WHERE usuario = ? AND password = ? ");
-			st.setString(1, user.getUsername());
-			st.setString(2, user.getPassword());
-			result = st.executeQuery();
-
-			// Si existe inicio sesion
-			if (result.next()) {
-				Servidor.log.append("El usuario " + user.getUsername() + " ha iniciado sesión." + System.lineSeparator());
-				connect.close();
-				return true;
-			}
-
-			// Si no existe informo y devuelvo false
-			Servidor.log.append("El usuario " + user.getUsername() + " ha realizado un intento fallido de inicio de sesión." + System.lineSeparator());
-			connect.close();
-			return false;
-
-		} catch (SQLException e) {
-			Servidor.log.append("El usuario " + user.getUsername() + " fallo al iniciar sesión." + System.lineSeparator());
-			try {
-				connect.close();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			return false;
-		}
-		*/
 	}
 
 	/**
