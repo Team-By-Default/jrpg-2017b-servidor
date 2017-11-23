@@ -84,7 +84,7 @@ public class Conector {
 	 * @return True si pudo registrarlo correctamente, false si ocurrió algún error
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Registrar Usuario");
 		
 		// Preparo sesion de hibernate
@@ -168,7 +168,7 @@ public class Conector {
 	 * @return true si se pudo registrar, false si hubo problemas
 	 */
 	public boolean registrarPersonaje(PaquetePersonaje personaje, PaqueteUsuario user) {
-		//--------------HIBERNATE------------------------
+		//--------------HIBERNATE ANDANDO------------------------
 		System.out.println("Registrar personaje");
 		
 		// Preparo sesion de hibernate
@@ -194,18 +194,24 @@ public class Conector {
 			return false;
 		}
 		
-		//Asigno el id al personaje y lo asocio al usuario
+		//Asigno el id al personaje, lo asocio al usuario e inicializo la mochila
 		personaje.setId(personajeId);
 		personaje.setMochila(personajeId);
 		personaje.setInventario(personajeId);
-		user.setIdPj(personajeId);
 		
-		//Guardo usuario con el nuevo personaje asociado y el personaje con los ids de mochila e inventario
+		user.setIdPj(personajeId);
+
+		personaje.setBackPack(new Mochila());
+		personaje.getBackPack().setMochila(personajeId);
+		
+		//Guardo usuario con el nuevo personaje asociado y el personaje con los ids y la mochila
 		transaccion = session.beginTransaction();
 		try {
 			session.saveOrUpdate(user);
 			session.flush();
 			session.saveOrUpdate(personaje);
+			session.flush();
+			session.saveOrUpdate(personaje.getBackPack());
 			session.flush();
 			transaccion.commit();
 		} catch (HibernateException e) {
@@ -220,18 +226,10 @@ public class Conector {
 			return false;
 		}
 		
-		if (this.registrarInventarioMochila(personajeId)) {
-			Servidor.log.append("El usuario " + user.getUsername() + " ha creado el personaje "
-					+ personaje.getId() + System.lineSeparator());
-			session.close();
-			return true;
-		} else {
-			Servidor.log.append("Error al registrar la mochila y el inventario del "
-					+ "usuario " + user.getUsername() + " con el personaje " + 
-					personaje.getId() + System.lineSeparator());
-			session.close();
-			return false;
-		}
+		Servidor.log.append("El usuario " + user.getUsername() + " ha creado el personaje "
+				+ personaje.getId() + System.lineSeparator());
+		session.close();
+		return true;
 		
 		/*
 		try {
@@ -791,6 +789,9 @@ public class Conector {
 		//Si no tiene el inventario lleno, le doy un item mas
 		if(paquetePersonaje.getCantItems() < 9)
 			paquetePersonaje.anadirItem(new Random().nextInt(29) + 1);
+		
+		//Actualizo la mochila en memoria
+		paquetePersonaje.getBackPack().setItems(paquetePersonaje.getItems());
 		
 		//Actualizo la mochila en la BD
 		Transaction transaccion = session.beginTransaction();
