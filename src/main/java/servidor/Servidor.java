@@ -26,7 +26,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import mensajeria.PaqueteNPC;
-import mensajeria.PaqueteMensaje;
 import mensajeria.PaqueteMovimiento;
 import mensajeria.PaquetePersonaje;
 import mundo.Mundo;
@@ -299,93 +298,6 @@ public class Servidor extends Thread {
 			return true;
 		}
 		
-	}
-
-	/*Quiero dejar este método obsoleto, no parece hacer falta si se modifica del proyecto Servidor
-	 * comandos.Talk.ejecutar()
-	 */
-	/**
-	 * Método obsoleto.
-	 * 
-	 * En el contexto donde un usuario intenta enviar un mensaje a otro, chequea que el receptor
-	 * esté conectado. Si lo está, informa en el log del servidor que el mensaje se envió y retorna
-	 * true. Si no está conectado, informa que no se pudo enviar el mensaje y retorna false.
-	 * @param pqm es el paquete de mensaje que se intenta enviar
-	 * @return si el receptor está conectado o no
-	 */
-	public static boolean mensajeAUsuario(PaqueteMensaje pqm) {
-		//Refactoreando (Lucas, sabemos que fuiste vos)
-		
-		for (Map.Entry<Integer, PaquetePersonaje> personaje : personajesConectados.entrySet()) {
-			if(personaje.getValue().getNombre().equals(pqm.getUserReceptor())) {
-				Servidor.log.append(pqm.getUserEmisor() + " envió mensaje a " + pqm.getUserReceptor() + System.lineSeparator());
-				return true;
-			}
-		}
-		Servidor.log.append("El mensaje para " + pqm.getUserReceptor() + " no se envió, ya que se encuentra desconectado." + System.lineSeparator());
-		return false;
-		
-		/*Desastre anterior:
-		
-		boolean result = true;
-		boolean noEncontro = true;
-		for (Map.Entry<Integer, PaquetePersonaje> personaje : personajesConectados.entrySet()) {
-			if(noEncontro && (!personaje.getValue().getNombre().equals(pqm.getUserReceptor()))) {
-				result = false;
-			} else {
-				result = true;
-				noEncontro = false;
-			}
-		}
-		// Si existe inicio sesion
-		if (result) {
-			Servidor.log.append(pqm.getUserEmisor() + " envió mensaje a " + pqm.getUserReceptor() + System.lineSeparator());
-				return true;
-		} else {
-			// Si no existe informo y devuelvo false
-			Servidor.log.append("El mensaje para " + pqm.getUserReceptor() + " no se envió, ya que se encuentra desconectado." + System.lineSeparator());
-			return false;
-		}
-		*/
-	}
-	
-	/*Quiero dejar este método obsoleto, no parece hacer falta si se modifica del proyecto Servidor
-	 * comandos.Talk.ejecutar()
-	 */
-	/**
-	 * Método obsoleto.
-	 * 
-	 * En el contexto donde un usuario intenta enviar un mensaje a todos, chequea que la cantidad de conectados
-	 * sea igual a la esperada. Si lo es, informa en el log del servidor que el mensaje se envió a todos y 
-	 * retorna true. Si la cantidad no es igual, informa que algunos usuarios se han desconectado y retorna false.
-	 * @param contador es la cantidad esperada de usuarios conectados
-	 * @return si se envió el mensaje a todos o no
-	 */
-	public static boolean mensajeAAll(int contador) {
-		//Refactoreando el desastre anterior (Lucas, sabemos que fuiste vos)
-		if(personajesConectados.size() == contador+1) {
-			Servidor.log.append("Se ha enviado un mensaje a todos los usuarios" + System.lineSeparator());
-			return true;
-		}
-		Servidor.log.append("Uno o más de todos los usuarios se ha desconectado, se ha mandado el mensaje a los demas." + System.lineSeparator());
-		return false;
-			
-		/* Desastre anterior:
-		
-		boolean result = true;
-		if(personajesConectados.size() != contador+1) {
-			result = false;
-		}
-		// Si existe inicio sesion
-		if (result) {
-			Servidor.log.append("Se ha enviado un mensaje a todos los usuarios" + System.lineSeparator());
-				return true;
-		} else {
-			// Si no existe informo y devuelvo false
-			Servidor.log.append("Uno o más de todos los usuarios se ha desconectado, se ha mandado el mensaje a los demas." + System.lineSeparator());
-			return false;
-		}
-		*/
 	}
 	
 	public static ArrayList<EscuchaCliente> getClientesConectados() {

@@ -69,7 +69,6 @@ public class Conector {
 	 */
 	public boolean registrarUsuario(PaqueteUsuario user) {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Registrar Usuario");
 		
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
@@ -122,7 +121,6 @@ public class Conector {
 	 */
 	public boolean registrarPersonaje(PaquetePersonaje personaje, PaqueteUsuario user) {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Registrar personaje");
 		
 		// Preparo sesion de hibernate
 		Session session = factory.openSession();
@@ -193,7 +191,6 @@ public class Conector {
 	 */
 	public boolean registrarInventarioMochila(int idInventarioMochila) {
 		//--------------HIBERNATE OBSOLETO------------------------
-		System.out.println("Registrar Inventario Mochila");
 		
 		//Preparo la sesion
 		Session session = factory.openSession();
@@ -229,7 +226,6 @@ public class Conector {
 	 */
 	public boolean loguearUsuario(PaqueteUsuario user) {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Loguear usuario");
 		
 		//Preparo la sesion y el criteria
 		Session session = factory.openSession();
@@ -259,7 +255,6 @@ public class Conector {
 	 */
 	public void actualizarPersonaje(PaquetePersonaje paquetePersonaje) {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Actualizar persoanje");
 		
 		//Preparo la sesion
 		Session session = factory.openSession();
@@ -331,7 +326,6 @@ public class Conector {
 	 */
 	public PaquetePersonaje getPersonaje(PaqueteUsuario user) throws IOException {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Get personaje");
 		
 		//Preparo hibernate y criteria
 		Session session = factory.openSession();
@@ -388,8 +382,6 @@ public class Conector {
 	 */
 	public PaqueteUsuario getUsuario(String usuario) {
 		
-		System.out.println("Get usuario");
-		
 		//Preparo hibernate y criteria
 		Session session = factory.openSession();
 		CriteriaBuilder cBuilder = session.getCriteriaBuilder();
@@ -416,7 +408,6 @@ public class Conector {
 	 */
 	public void actualizarInventario(PaquetePersonaje paquetePersonaje) {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Actualizar inventario");
 		
 		//Preparo la sesion
 		Session session = factory.openSession();
@@ -448,7 +439,6 @@ public class Conector {
 	 */
 	public void agregarItemInventario(int idPersonaje) {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Agregar item inventario");
 		
 		
 		Session session = factory.openSession();
@@ -483,7 +473,6 @@ public class Conector {
 	 */
 	public void actualizarPersonajeSubioNivel(PaquetePersonaje paquetePersonaje) {
 		//--------------HIBERNATE ANDANDO------------------------
-		System.out.println("Actualizar persoanje subio nivel");
 		
 		Session session = factory.openSession();
 		Transaction transaccion = session.beginTransaction();

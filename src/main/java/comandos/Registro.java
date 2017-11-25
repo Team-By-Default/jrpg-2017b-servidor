@@ -1,7 +1,6 @@
 package comandos;
 
 import java.io.IOException;
-
 import mensajeria.Comando;
 import mensajeria.Paquete;
 import mensajeria.PaqueteUsuario;
@@ -28,7 +27,6 @@ public class Registro extends ComandosServer {
 				escuchaCliente.getSalida().writeObject(gson.toJson(paqueteSv));
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			Servidor.log.append("Falló al intentar enviar registro\n");
 		}
 

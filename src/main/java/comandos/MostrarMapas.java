@@ -1,7 +1,6 @@
 package comandos;
 
 import java.io.IOException;
-
 import mensajeria.PaqueteNPCs;
 import mensajeria.PaquetePersonaje;
 import servidor.Servidor;
@@ -20,7 +19,6 @@ public class MostrarMapas extends ComandosServer{
 		try {
 			escuchaCliente.getSalida().writeObject(gson.toJson(paqueteNPCs));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

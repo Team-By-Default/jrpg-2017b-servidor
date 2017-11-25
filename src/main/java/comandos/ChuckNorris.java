@@ -1,8 +1,6 @@
 package comandos;
 
 import java.io.IOException;
-
-import mensajeria.PaqueteComerciar;
 import mensajeria.PaqueteDios;
 import servidor.EscuchaCliente;
 import servidor.Servidor;
