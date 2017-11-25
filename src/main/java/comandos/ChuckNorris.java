@@ -3,15 +3,15 @@ package comandos;
 import java.io.IOException;
 
 import mensajeria.PaqueteComerciar;
-import mensajeria.PaquetePersonajeDominio;
+import mensajeria.PaqueteDios;
 import servidor.EscuchaCliente;
 import servidor.Servidor;
 
-public class ChuckNorrisEnBatalla extends ComandosServer{
+public class ChuckNorris extends ComandosServer{
 
 	@Override
 	public void ejecutar() {
-		PaquetePersonajeDominio pj = (PaquetePersonajeDominio) gson.fromJson(cadenaLeida, PaquetePersonajeDominio.class);
+		PaqueteDios pj = (PaqueteDios) gson.fromJson(cadenaLeida, PaqueteDios.class);
 		//BUSCO EN LAS ESCUCHAS AL QUE SE LO TENGO QUE MANDAR
 		for(EscuchaCliente conectado : Servidor.getClientesConectados()) {
 			if(conectado.getPaquetePersonaje().getId() == pj.getIdEnemigo()) {
